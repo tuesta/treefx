@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root fx:id="node_container" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/21.0.3-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fx:id="node_img" fitHeight="108.0" fitWidth="192.0" pickOnBounds="true" preserveRatio="true">
+         <viewport>
+            <Rectangle2D />
+         </viewport>
+         <image>
+            <Image url="https://images.pexels.com/photos/14375833/pexels-photo-14375833.jpeg" />
+         </image></ImageView>
+      <Label fx:id="node_name" alignment="TOP_CENTER" contentDisplay="CENTER" maxHeight="20.0" maxWidth="1.7976931348623157E308" prefHeight="20.0" text="Hola" />
+   </children>
+</fx:root>

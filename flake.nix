@@ -15,6 +15,8 @@
             javaPackages.openjfx21
             glib
             xorg.libXxf86vm
+
+            scenebuilder
           ];
           shellHook = ''
             export PATH="$PATH:${pkgs.maven}/bin"

@@ -98,7 +98,7 @@ public class ZipTreeStrict<a> {
             commonFather = ancestorsCurrent.peek();
             ancestorsCurrent.pop();
             ancestorsTarget.pop();
-        };
+        }
         ancestorsCurrent.push(commonFather);
         ancestorsTarget.push(commonFather);
 
