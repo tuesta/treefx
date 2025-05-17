@@ -1,68 +1,140 @@
 package org.treefx.model.ziptree;
 
+import org.treefx.model.ziplist.ZipListStrict;
+import org.treefx.utils.adt.Movement;
 import org.treefx.utils.adt.Maybe;
+import org.treefx.utils.adt.T;
 
-public class ZipTreeStrict<a> implements ZipTree<a> {
-    private NodeLinkTree<a> node;
+import java.util.LinkedList;
+import java.util.Stack;
+import java.util.function.Function;
 
-    public ZipTreeStrict(NodeLinkTree<a> node) { this.node = node; }
+public class ZipTreeStrict<a> {
+    private TreeCtxStrict<a> ctx;
+    private final TreeCtxStrict<a> root;
 
-    @Override
-    public a extract() { return node.getCurrent(); }
+    public ZipTreeStrict(a val) {
+        ZipListStrict<T<a, TreeCtxStrict<a>>> brothers = new ZipListStrict<>();
+        this.ctx = new TreeCtxStrict<>(new Maybe.Nothing<>(), null, brothers, new ZipListStrict<>());
 
-    @Override
-    public boolean prev() {
-        switch (this.node.getBefore()) {
+        T<a, TreeCtxStrict<a>> current = new T.MkT<>(val, this.ctx);
+        brothers.insertR(current);
+        this.ctx.setCurrent(brothers.getMNode().fromJust());
+
+        this.root = ctx;
+    }
+
+    public a extract() { return this.ctx.getBrothers().extract().fromJust().fst(); }
+    public TreeCtxStrict<a> getCtx() { return this.ctx; }
+
+    public boolean toFather() {
+        switch (this.ctx.getFather()) {
             case Maybe.Nothing() -> { return false; }
-            case Maybe.Just(NodeLinkTree<a> beforeNode) -> { this.node = beforeNode; return true; }
-        }
-    }
-
-    @Override
-    public boolean next() {
-        switch (this.node.getAfter()) {
-            case Maybe.Nothing() -> { return false; }
-            case Maybe.Just(NodeLinkTree<a> afterNode) -> { this.node = afterNode; return true; }
-        }
-    }
-
-    @Override
-    public boolean top() {
-        switch (node.getUp()) {
-            case Maybe.Nothing() -> { return false; }
-            case Maybe.Just(NodeLinkTree<a> upNode) -> { this.node = upNode; return true; }
-        }
-    }
-
-    @Override
-    public boolean down() {
-        switch (node.getDown()) {
-            case Maybe.Nothing() -> { return false; }
-            case Maybe.Just(NodeLinkTree<a> downNode) -> { this.node = downNode; return true; }
-        }
-    }
-
-    public void insertR(a val) {
-        var cNode = this.node;
-        var newNode = new NodeLinkTree<>(val, new Maybe.Just<>(cNode), cNode.getAfter(),cNode.getUp(), new Maybe.Nothing<>());
-        cNode.setAfter(new Maybe.Just<>(newNode));
-        this.node = newNode;
-    }
-
-    public void insertD(a val) {
-        NodeLinkTree<a> newNode;
-        switch (this.node.getDown()) {
-            case Maybe.Nothing() ->
-                newNode = new NodeLinkTree<>(val, new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Just<>(this.node), new Maybe.Nothing<>());
-            case Maybe.Just(NodeLinkTree<a> downNode) -> {
-                newNode = new NodeLinkTree<>(val, new Maybe.Just<>(downNode), downNode.getAfter(), new Maybe.Just<>(this.node), new Maybe.Nothing<>());
-                downNode.setAfter(new Maybe.Just<>(newNode));
+            case Maybe.Just(TreeCtxStrict<a> fatherCtx) -> {
+                this.ctx = fatherCtx;
+                return true;
             }
         }
-
-        this.node.setDown(new Maybe.Just<>(newNode));
-        this.node = newNode;
     }
 
-    public void show() { this.node.show(); }
+    public int toChild(int ix) {
+        var children = this.ctx.getChildren();
+
+        int newIx = children.to(ix);
+        if (newIx == 0) return 0;
+
+        this.ctx = children.extract().fromJust().snd();
+        return newIx;
+    }
+
+    public boolean next() {
+        if (this.ctx.getBrothers().next()) {
+            this.ctx = this.ctx.getBrothers().getMNode().fromJust().getCurrent().snd();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean prev() {
+        if (this.ctx.getBrothers().prev()) {
+            this.ctx = this.ctx.getBrothers().getMNode().fromJust().getCurrent().snd();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean down() {
+        var children = this.ctx.getChildren();
+        if (children.getMNode().isNothing()) return false;
+        this.ctx = children.getMNode().fromJust().getCurrent().snd();
+        return true;
+    }
+
+    public void insertChild(a val) {
+        var children = this.ctx.getChildren();
+        var newCtx = new TreeCtxStrict<>(new Maybe.Just<>(this.ctx), null,children, new ZipListStrict<>());
+        var current = new T.MkT<>(val, newCtx);
+        children.insertR(current);
+        newCtx.setCurrent(children.getMNode().fromJust());
+
+        this.ctx = newCtx;
+    }
+
+    public LinkedList<Movement> getRelativePosition(TreeCtxStrict<a> targetCtx) {
+        Stack<TreeCtxStrict<a>> ancestorsCurrent = new Stack<>();
+        ancestorsCurrent.push(this.ctx);
+        while (ancestorsCurrent.peek().getFather().isJust()) {
+            ancestorsCurrent.push(ancestorsCurrent.peek().getFather().fromJust());
+        }
+
+        Stack<TreeCtxStrict<a>> ancestorsTarget = new Stack<>();
+        ancestorsTarget.push(targetCtx);
+        while (ancestorsTarget.peek().getFather().isJust()) {
+            ancestorsTarget.push(ancestorsTarget.peek().getFather().fromJust());
+        }
+
+        TreeCtxStrict<a> commonFather = root;
+        while (ancestorsCurrent.peek() == ancestorsTarget.peek()) {
+            commonFather = ancestorsCurrent.peek();
+            ancestorsCurrent.pop();
+            ancestorsTarget.pop();
+        };
+        ancestorsCurrent.push(commonFather);
+        ancestorsTarget.push(commonFather);
+
+        LinkedList<Movement> movements = new LinkedList<>();
+
+        if (ancestorsCurrent.isEmpty() && ancestorsTarget.isEmpty()) return movements;
+
+        // Empieza en uno, para solo contar los padres
+        for (int i = 1; i < ancestorsCurrent.size(); i++) movements.add(Movement.UP);
+
+        if (ancestorsTarget.isEmpty()) return movements;
+        // Remove common father
+        ancestorsTarget.pop();
+
+        while (!ancestorsTarget.isEmpty()) {
+            var ctx = ancestorsTarget.pop();
+            int child = ctx.getBrothers().getIndex(ctx.getCurrent());
+            movements.add(Movement.DOWN(child));
+        }
+
+        return movements;
+    }
+
+    public boolean moveTo(LinkedList<Movement> movements) {
+        for (Movement m : movements) {
+            switch (m) {
+                case Movement.Up() -> {
+                   if (!this.toFather()) return false;
+                }
+                case Movement.Down(int child) -> {
+                    if (this.toChild(child) != child) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void mapM(Function<a, Void> k) { this.root.downMap(k); }
 }

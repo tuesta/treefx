@@ -9,14 +9,14 @@ import org.treefx.utils.adt.T;
 import java.util.function.Function;
 
 public class ZipTreeLazy<b, a> implements ZipTree<a> {
-    private final ZipTreeStrict<a> memo;
-    private TreeF<b> context;
+    private final Tree<a> memo;
+    private TreeCtxLazy<b> ctx;
     private final Function<b, T<a, ZipList<b>>> generate;
 
     public ZipTreeLazy(ZipList<b> ctx, b state, Function<b, T<a, ZipList<b>>> generate) {
         T<a, ZipList<b>> node = generate.apply(state);
-        this.memo = new ZipTreeStrict<>(new NodeLinkTree<>(node.fst(), new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>()));
-        this.context = new TreeF<>(new Maybe.Nothing<>(), new ZipListInc<>(ctx.empty()), new ZipListInc<>(node.snd()));
+        this.memo = new Tree<>(new NodeLinkTree<>(node.fst(), new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>()));
+        this.ctx = new TreeCtxLazy<>(new Maybe.Nothing<>(), new ZipListInc<>(ctx.empty()), new ZipListInc<>(node.snd()));
         this.generate = generate;
     }
 
@@ -26,11 +26,11 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
     @Override
     public boolean prev() {
         if (this.memo.prev()) {
-            var brothersRef = this.context.getBrothers();
+            var brothersRef = this.ctx.getBrothers();
             brothersRef.prev();
             return switch (brothersRef.extract().fromJust()) {
                 case Either.Left(b ignored) -> throw new Error("ZipListInc mismatch with memo, cannot be state");
-                case Either.Right(TreeF<b> ignored) -> true;
+                case Either.Right(TreeCtxLazy<b> ignored) -> true;
             };
         } else return false;
     }
@@ -38,24 +38,24 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
     @Override
     public boolean next() {
         if (this.memo.next()) {
-            this.context.getBrothers().next();
-            switch (this.context.getBrothers().extract().fromJust()) {
+            this.ctx.getBrothers().next();
+            switch (this.ctx.getBrothers().extract().fromJust()) {
                 case Either.Left(b ignored) -> throw new Error("ZipTreeLazy mismatch with memo, cannot be state");
-                case Either.Right(TreeF<b> brothers) -> { this.context = brothers; return true; }
+                case Either.Right(TreeCtxLazy<b> brothers) -> { this.ctx = brothers; return true; }
             }
         } else {
-            var brothersRef = this.context.getBrothers();
+            var brothersRef = this.ctx.getBrothers();
             if (!brothersRef.next()) return false;
             switch (brothersRef.extract().fromJust()) {
                 case Either.Left(b brotherState) -> {
                     T<a, ZipList<b>> newNode = this.generate.apply(brotherState);
-                    TreeF<b> newCtx = new TreeF<>(this.context.getFather(), brothersRef, new ZipListInc<>(newNode.snd()));
+                    TreeCtxLazy<b> newCtx = new TreeCtxLazy<>(this.ctx.getFather(), brothersRef, new ZipListInc<>(newNode.snd()));
                     brothersRef.setCurrent(newCtx);
-                    this.context = newCtx;
+                    this.ctx = newCtx;
                     this.memo.insertR(newNode.fst());
                     return true;
                 }
-                case Either.Right(TreeF<b> ignored) -> throw new Error("ZipTreeLazy mismatch with memo, memo outdated");
+                case Either.Right(TreeCtxLazy<b> ignored) -> throw new Error("ZipTreeLazy mismatch with memo, memo outdated");
             }
         }
     }
@@ -63,7 +63,7 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
     @Override
     public boolean top() {
         if (this.memo.top()) {
-            this.context = this.context.getFather().fromJust();
+            this.ctx = this.ctx.getFather().fromJust();
             return true;
         } else return false;
     }
@@ -71,25 +71,25 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
     @Override
     public boolean down() {
         if (this.memo.down()) {
-            switch (this.context.getChildren().extract().fromJust()) {
+            switch (this.ctx.getChildren().extract().fromJust()) {
                 case Either.Left(b ignored) -> throw new Error("ZipTreeLazy mismatch with memo, cannot be state");
-                case Either.Right(TreeF<b> children) -> { this.context = children; return true; }
+                case Either.Right(TreeCtxLazy<b> children) -> { this.ctx = children; return true; }
             }
         } else {
-            var childrenRef = this.context.getChildren();
+            var childrenRef = this.ctx.getChildren();
             switch (childrenRef.extract()) {
                 case Maybe.Nothing() -> { return false; }
-                case Maybe.Just(Either<b, TreeF<b>> childrenEither) -> {
+                case Maybe.Just(Either<b, TreeCtxLazy<b>> childrenEither) -> {
                     switch (childrenEither) {
                         case Either.Left(b childrenState) -> {
                             T<a, ZipList<b>> newNode = this.generate.apply(childrenState);
-                            TreeF<b> newCtx = new TreeF<>(new Maybe.Just<>(this.context), childrenRef, new ZipListInc<>(newNode.snd()));
+                            TreeCtxLazy<b> newCtx = new TreeCtxLazy<>(new Maybe.Just<>(this.ctx), childrenRef, new ZipListInc<>(newNode.snd()));
                             childrenRef.setCurrent(newCtx);
-                            this.context = newCtx;
+                            this.ctx = newCtx;
                             this.memo.insertD(newNode.fst());
                             return true;
                         }
-                        case Either.Right(TreeF<b> ignored) -> throw new Error("ZipTreeLazy mismatch with memo, memo outdated");
+                        case Either.Right(TreeCtxLazy<b> ignored) -> throw new Error("ZipTreeLazy mismatch with memo, memo outdated");
                     }
                 }
             }

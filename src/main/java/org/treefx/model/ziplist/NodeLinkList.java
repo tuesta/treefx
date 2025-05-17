@@ -13,6 +13,10 @@ public class NodeLinkList<a> {
         this.after = after;
     }
 
+    public NodeLinkList(a current) {
+        this(new Maybe.Nothing<>(), current, new Maybe.Nothing<>());
+    }
+
     public Maybe<NodeLinkList<a>> getBefore() { return before; }
 
     public void setBefore(Maybe<NodeLinkList<a>> before) { this.before = before; }

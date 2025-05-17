@@ -20,6 +20,10 @@ public class NodeLinkTree<a> {
         this.down = down;
     }
 
+    public NodeLinkTree(a current) {
+        this(current, new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>());
+    }
+
     public a getCurrent() { return current; }
 
     public void setCurrent(a current) { this.current = current; }

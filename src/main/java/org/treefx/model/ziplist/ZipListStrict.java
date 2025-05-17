@@ -1,10 +1,16 @@
 package org.treefx.model.ziplist;
 
-
 import org.treefx.utils.adt.Maybe;
+
+import java.util.function.Function;
 
 public class ZipListStrict<a> implements ZipList<a>{
     private Maybe<NodeLinkList<a>> mNode;
+    private int size;
+    private int index;
+    private NodeLinkList<a> head = null;
+
+    public int size() { return this.size; }
 
     @Override
     public void setCurrent(a a) {
@@ -14,7 +20,24 @@ public class ZipListStrict<a> implements ZipList<a>{
         }
     }
 
-    public ZipListStrict() { this.mNode = new Maybe.Nothing<>(); }
+    public ZipListStrict() {
+        this.mNode = new Maybe.Nothing<>();
+        this.size = 0;
+        this.index = 0;
+    }
+
+    public int getIndex(NodeLinkList<a> node) {
+        if (this.head == null) return 0;
+        this.toStart();
+
+        do {
+            if (this.mNode.fromJust() == node) return this.index;
+        } while (this.next());
+
+        return 0;
+    }
+
+    public Maybe<NodeLinkList<a>> getMNode() { return this.mNode; }
 
     @Override
     public Maybe<a> extract() {
@@ -25,9 +48,7 @@ public class ZipListStrict<a> implements ZipList<a>{
     }
 
     @Override
-    public <x> ZipList<x> empty() {
-        return new ZipListStrict<>();
-    }
+    public <x> ZipList<x> empty() { return new ZipListStrict<>(); }
 
     @Override
     public boolean next() {
@@ -38,6 +59,7 @@ public class ZipListStrict<a> implements ZipList<a>{
                     case Maybe.Nothing() -> { return false; }
                     case Maybe.Just(NodeLinkList<a> ignored) -> {
                         this.mNode = node.getAfter();
+                        this.index++;
                         return true;
                     }
                 }
@@ -54,6 +76,7 @@ public class ZipListStrict<a> implements ZipList<a>{
                     case Maybe.Nothing() -> { return false; }
                     case Maybe.Just(NodeLinkList<a> ignored) -> {
                         this.mNode = node.getBefore();
+                        this.index--;
                         return true;
                     }
                 }
@@ -61,19 +84,48 @@ public class ZipListStrict<a> implements ZipList<a>{
         }
     }
 
-    private Maybe<NodeLinkList<a>> singletonNode(a val) {
-        return new Maybe.Just<>(new NodeLinkList<>(new Maybe.Nothing<>(), val, new Maybe.Nothing<>()));
-    }
-
     public void insertR(a val) {
         switch (this.mNode) {
-            case Maybe.Nothing() -> this.mNode = singletonNode(val);
+            case Maybe.Nothing() -> {
+                this.head = new NodeLinkList<>(val);
+                this.mNode = new Maybe.Just<>(this.head);
+                this.size = 1;
+                this.index = 1;
+            }
             case Maybe.Just(NodeLinkList<a> node) -> {
                 var newNode = new Maybe.Just<>(new NodeLinkList<>(this.mNode, val, node.getAfter()));
                 node.setAfter(newNode);
                 this.mNode = newNode;
+                this.size++;
+                this.index++;
             }
         }
+    }
+
+    public int to(int i) {
+        if (this.size == 0) return 0;
+        if (i < 1) i = 1;
+        if (i > this.size) i = this.size;
+
+        while (i != this.index) {
+            if (this.index < i) this.next();
+            else this.prev();
+        }
+
+        return this.index;
+    }
+
+    private void toStart() {
+        this.index = 1;
+        this.mNode = new Maybe.Just<>(this.head);
+    }
+
+    public void mapM(Function<a, Void> k) {
+        toStart();
+        do {
+            k.apply(this.mNode.fromJust().getCurrent());
+        }
+        while (this.next());
     }
 
     @Override
