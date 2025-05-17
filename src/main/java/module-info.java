@@ -12,11 +12,6 @@ module org.treefx {
     requires java.sql;
     requires java.desktop;
 
-    opens org.treefx.view to javafx.fxml;
-    exports org.treefx.view;
-    exports org.treefx.controller;
-    opens org.treefx.controller to javafx.fxml;
-
     opens org.treefx.app to javafx.fxml;
     exports org.treefx.app;
     exports org.treefx.component;

@@ -15,6 +15,6 @@
          <image>
             <Image url="https://images.pexels.com/photos/14375833/pexels-photo-14375833.jpeg" />
          </image></ImageView>
-      <Label fx:id="node_name" alignment="TOP_CENTER" contentDisplay="CENTER" maxHeight="20.0" maxWidth="1.7976931348623157E308" prefHeight="20.0" text="Hola" />
+      <Label fx:id="node_name" alignment="TOP_CENTER" contentDisplay="CENTER" maxHeight="20.0" maxWidth="1.7976931348623157E308" prefHeight="20.0" style="-fx-background-color: white;" text="Hola" />
    </children>
 </fx:root>

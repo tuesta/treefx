@@ -67,6 +67,15 @@ public class ZipListStrict<a> implements ZipList<a>{
         }
     }
 
+    public boolean hasNext() {
+        switch (this.mNode) {
+            case Maybe.Nothing() -> { return false; }
+            case Maybe.Just(NodeLinkList<a> node) -> {
+                return node.getAfter().isJust();
+            }
+        }
+    }
+
     @Override
     public boolean prev() {
         switch (this.mNode) {
@@ -80,6 +89,15 @@ public class ZipListStrict<a> implements ZipList<a>{
                         return true;
                     }
                 }
+            }
+        }
+    }
+
+    public boolean hasPrev() {
+        switch (this.mNode) {
+            case Maybe.Nothing() -> { return false; }
+            case Maybe.Just(NodeLinkList<a> node) -> {
+                return node.getBefore().isJust();
             }
         }
     }
