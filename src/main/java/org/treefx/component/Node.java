@@ -62,7 +62,6 @@ public class Node extends VBox {
     }
 
     public void updateLine(Point2D father, Point2D child) {
-        System.out.println(mline);
         switch (mline) {
             case Maybe.Nothing() -> {
                 Line line = new Line();

@@ -26,7 +26,7 @@ public class TreeEditor extends AnchorPane {
     public AnchorPane getTree() { return tree; }
 
     public TreeEditor() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TreeSpace.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TreeEditor.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
