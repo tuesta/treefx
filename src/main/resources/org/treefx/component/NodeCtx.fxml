@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root fx:id="container" alignment="TOP_CENTER" maxWidth="250.0" minWidth="200.0" spacing="36.0" type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/21.0.3-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="node_saveDB" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black;" text="Guardar Tree" textFill="WHITE">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin></Button>
+      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="12.0">
+         <children>
+            <ImageView fx:id="node_img" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <TextField fx:id="node_imgURL" promptText="[img_url]" style="-fx-border-color: black; -fx-border-width: 1;" />
+            <TextField fx:id="node_name" promptText="[name]" style="-fx-border-color: black; -fx-border-width: 1;" />
+            <Button fx:id="node_update" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black;" text="Actualizar" textFill="WHITE" />
+         </children>
+      </VBox>
+   </children>
+</fx:root>

@@ -1,6 +1,5 @@
 package org.treefx.component;
 
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,11 +21,12 @@ public class Node extends VBox {
     @FXML private VBox node_container;
     @FXML private ImageView node_img;
     @FXML private Label node_name;
-    private ContextMenu mContextMenu;
     private final Maybe<Node> mNodeFather;
     private Maybe<Line> mline;
     private final TreeCtxStrict<NodeInfo> nodeCtx;
     private final TreeEditor editor;
+
+    public TreeCtxStrict<NodeInfo> getNodeCtx() { return nodeCtx; }
 
     public Node(Maybe<Node> mNodeFather, Maybe<Line> mline, TreeCtxStrict<NodeInfo> nodeCtx, TreeEditor editor) {
         this.mNodeFather = mNodeFather;
@@ -70,7 +70,7 @@ public class Node extends VBox {
                 line.setEndX(child.getX());
                 line.setEndY(child.getY());
                 line.setStyle("-fx-stroke: black; -fx-stroke-width: 2;");
-                this.editor.getTree().getChildren().add(line);
+                this.editor.getChildren().add(line);
                 this.mline = new Maybe.Just<>(line);
             }
             case Maybe.Just(Line line) -> {
@@ -84,22 +84,7 @@ public class Node extends VBox {
 
     @FXML
     public void initialize() {
-        Image image;
-
-        switch (nodeCtx.getValue().getImgURL()) {
-            case Maybe.Nothing() -> {
-                image = new Image("https://wallpapers.com/images/hd/1920x1080-aesthetic-glrfk0ntspz3tvxg.jpg");
-                System.out.println(image.isError());
-            }
-            case Maybe.Just(String url) -> image = new Image(url);
-        }
-
-        node_img.setImage(image);
-        node_name.setText(nodeCtx.getValue().getName());
-
-        node_container.setOnContextMenuRequested(e ->
-            mContextMenu.show(node_container, e.getScreenX(), e.getScreenY())
-        );
+        loadNodeInfo();
 
         node_container.setOnDragDetected(e -> {
             Dragboard db = node_container.startDragAndDrop(TransferMode.ANY);
@@ -108,6 +93,12 @@ public class Node extends VBox {
             db.setContent(content);
             editor.dragDetection(this);
             e.consume();
+        });
+
+        node_container.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY) {
+                editor.changeFocus(this);
+            }
         });
     }
 
@@ -136,5 +127,22 @@ public class Node extends VBox {
                 (int) localCoords.getX() - (this.getBoundsInParent().getWidth() / 2),
                 (int) localCoords.getY() - (this.getBoundsInParent().getHeight() / 2)
         );
+    }
+
+    public void loadNodeInfo() {
+        Image imageLoad = new Image(getClass().getResource("image-edit.png").toExternalForm());
+
+        switch (nodeCtx.getValue().getImgURL()) {
+            case Maybe.Nothing() -> {}
+            case Maybe.Just(String url) -> {
+                var mImage = new Image(url);
+                if (!mImage.isError()) imageLoad = mImage;
+            }
+        }
+
+        node_img.setImage(imageLoad);
+
+        String nameLoad = nodeCtx.getValue().getName();
+        node_name.setText(nameLoad.isEmpty() ? "[name]" : nameLoad);
     }
 }

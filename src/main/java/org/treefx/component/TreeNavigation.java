@@ -101,14 +101,16 @@ public class TreeNavigation extends VBox {
     }
 
     public void renderCurrentNode() {
-        Image image;
+        Image imageLoad = new Image(getClass().getResource("image-edit.png").toExternalForm());
         switch (zipTree.getCtx().getValue().getImgURL()) {
-            case Maybe.Nothing() ->
-                image = new Image("https://wallpapers.com/images/hd/1920x1080-aesthetic-glrfk0ntspz3tvxg.jpg");
-            case Maybe.Just(String url) -> image = new Image(url);
+            case Maybe.Nothing() -> {}
+            case Maybe.Just(String url) -> {
+                var mImage = new Image(url);
+                if (!mImage.isError()) imageLoad = mImage;
+            }
         }
 
-        node_img.setImage(image);
+        node_img.setImage(imageLoad);
 
         resizeImage(container.getWidth(), container.getHeight() - 40);
         container.layoutBoundsProperty().addListener((observable, oldValue, newValue) ->
@@ -140,7 +142,7 @@ public class TreeNavigation extends VBox {
     }
 
     /**
-     * Moves to the first child node if available.
+     * Moves to the child node if available.
      */
     private void moveDown() {
         this.zipTree.down();
