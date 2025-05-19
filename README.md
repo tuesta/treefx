@@ -1,7 +1,8 @@
 
 <h1 align="center">
   <br>
-  <a href="https://github.com/tuesta/treefx"><img src="https://github.com/tuesta/treefx/blob/documentacion/assets/images/Logo.png?raw=true" alt="Markdownify" height="200"></a>
+  <a href="https://github.com/tuesta/treefx"><img src="https://github.com/tuesta/treefx/blob/master/assets/images/Logo.png?raw=true" alt="Treefx
+" height="200"></a>
   <br>
   Our Readme
   <br>
