@@ -5,6 +5,7 @@ import org.treefx.model.ziplist.ZipListStrict;
 import org.treefx.utils.adt.Maybe;
 import org.treefx.utils.adt.T;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class TreeCtxStrict<a> {
@@ -42,7 +43,7 @@ public class TreeCtxStrict<a> {
     public void setChildren(ZipListStrict<T<a, TreeCtxStrict<a>>> children) { this.children = children; }
 
     public void downMap(Function<a, Void> k) {
-        var a = this.brothers.extract().fromJust().fst();
+        var a = this.current.getCurrent().fst();
         k.apply(a);
         this.children.mapM(x -> {
             x.snd().downMap(k);
@@ -50,4 +51,16 @@ public class TreeCtxStrict<a> {
         });
     }
 
+    public <b> void downMapWithFatherGO(Maybe<b> mfatherResult, BiFunction<Maybe<b>, TreeCtxStrict<a>, b> k) {
+        var a = this.current.getCurrent().snd();
+        var b = k.apply(mfatherResult, a);
+        this.children.mapM(x -> {
+            x.snd().downMapWithFatherGO(new Maybe.Just<>(b), k);
+            return null;
+        });
+    }
+
+    public <b> void downMapWithFather(BiFunction<Maybe<b>, TreeCtxStrict<a>, b> k) {
+        this.downMapWithFatherGO(new Maybe.Nothing<>(), k);
+    }
 }

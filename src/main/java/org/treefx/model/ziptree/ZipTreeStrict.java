@@ -7,6 +7,7 @@ import org.treefx.utils.adt.T;
 
 import java.util.LinkedList;
 import java.util.Stack;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class ZipTreeStrict<a> {
@@ -36,6 +37,8 @@ public class ZipTreeStrict<a> {
             }
         }
     }
+
+    public void toRoot() { this.ctx = this.root; }
 
     public int toChild(int ix) {
         var children = this.ctx.getChildren();
@@ -137,4 +140,6 @@ public class ZipTreeStrict<a> {
     }
 
     public void mapM(Function<a, Void> k) { this.root.downMap(k); }
+
+    public <b> void mapWithFatherM(BiFunction<Maybe<b>, TreeCtxStrict<a>, b> k) { this.root.downMapWithFather(k); }
 }
