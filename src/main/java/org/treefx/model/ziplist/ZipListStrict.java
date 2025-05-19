@@ -139,11 +139,14 @@ public class ZipListStrict<a> implements ZipList<a>{
     }
 
     public void mapM(Function<a, Void> k) {
+        if (size == 0) return;
+
         toStart();
         do {
             k.apply(this.mNode.fromJust().getCurrent());
         }
         while (this.next());
+        this.toStart();
     }
 
     @Override

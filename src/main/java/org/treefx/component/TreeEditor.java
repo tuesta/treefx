@@ -1,5 +1,6 @@
 package org.treefx.component;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -8,8 +9,10 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import org.treefx.model.NodeInfo;
+import org.treefx.model.ziptree.TreeCtxStrict;
 import org.treefx.model.ziptree.ZipTreeStrict;
 import org.treefx.utils.adt.Maybe;
+import org.treefx.utils.adt.T;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -36,16 +39,13 @@ public class TreeEditor extends AnchorPane {
     }
 
     public TreeEditor(ZipTreeStrict<NodeInfo> zipTree) {
+        zipTree.toRoot();
         this.zipTree = zipTree;
-        loadFxml();
+       loadFxml();
     }
 
     @FXML
     public void initialize() {
-        this.currentNode = new Node(new Maybe.Nothing<>(), new Maybe.Nothing<>(), this.zipTree.getCtx(), this);
-        this.tree.getChildren().add(this.currentNode);
-        this.currentNode.setFocus();
-
         this.tree.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.SECONDARY) {
                 Point2D p = tree.sceneToLocal(e.getSceneX(), e.getSceneY());
@@ -54,6 +54,19 @@ public class TreeEditor extends AnchorPane {
             }
         });
 
+        this.zipTree.mapWithFatherM((Maybe<Node> mfather, TreeCtxStrict<NodeInfo> nodeCtx) -> {
+            var newNode = new Node(mfather, nodeCtx, this);
+            newNode.renderNode(nodeCtx.getValue().getPos());
+            this.tree.getChildren().add(newNode);
+
+            if (mfather.isNothing()) {this.currentNode = newNode;}
+
+            Platform.runLater(newNode::handleLine);
+
+            return newNode;
+        });
+
+        this.currentNode.setFocus();
         this.nodeCtx = new NodeCtx(this.currentNode);
         this.container.getItems().add(this.nodeCtx);
     }
@@ -62,7 +75,7 @@ public class TreeEditor extends AnchorPane {
         this.zipTree.insertChild(new NodeInfo("", new Maybe.Nothing<>(), pos, new LinkedList<>()));
         this.currentNode.removeFocus();
 
-        this.currentNode = new Node(new Maybe.Just<>(this.currentNode), new Maybe.Nothing<>(), this.zipTree.getCtx(), this);
+        this.currentNode = new Node(new Maybe.Just<>(this.currentNode), this.zipTree.getCtx(), this);
         this.currentNode.renderNode(pos);
         this.currentNode.setFocus();
         this.tree.getChildren().add(this.currentNode);

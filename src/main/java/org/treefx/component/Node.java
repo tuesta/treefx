@@ -28,9 +28,9 @@ public class Node extends VBox {
 
     public TreeCtxStrict<NodeInfo> getNodeCtx() { return nodeCtx; }
 
-    public Node(Maybe<Node> mNodeFather, Maybe<Line> mline, TreeCtxStrict<NodeInfo> nodeCtx, TreeEditor editor) {
+    public Node(Maybe<Node> mNodeFather, TreeCtxStrict<NodeInfo> nodeCtx, TreeEditor editor) {
         this.mNodeFather = mNodeFather;
-        this.mline = mline;
+        this.mline = new Maybe.Nothing<>();
         this.nodeCtx = nodeCtx;
         this.editor = editor;
 
@@ -50,6 +50,7 @@ public class Node extends VBox {
             case Maybe.Nothing() -> {}
             case Maybe.Just(Node nodeFather) ->
                 this.boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
+                    System.out.println(newValue.getWidth());
                     Point2D fatherPoint = nodeFather.localToScene(nodeFather.getWidth() / 2, nodeFather.getHeight());
                     Point2D childPoint = this.localToScene( newValue.getWidth() / 2, 0);
                     this.updateLine(fatherPoint, childPoint);
@@ -123,6 +124,7 @@ public class Node extends VBox {
 
     public void renderNode(Point2D localCoords) {
         this.nodeCtx.getValue().setPos(localCoords);
+
         this.relocate(
                 (int) localCoords.getX() - (this.getBoundsInParent().getWidth() / 2),
                 (int) localCoords.getY() - (this.getBoundsInParent().getHeight() / 2)
