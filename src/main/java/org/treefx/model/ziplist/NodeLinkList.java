@@ -34,7 +34,7 @@ public class NodeLinkList<a> {
             case Maybe.Nothing() -> System.out.print("||");
             case Maybe.Just(NodeLinkList<a> beforeNode) -> System.out.print(beforeNode.showLeft());
         }
-        System.out.print("@" + ">" + this + "<" + "@");
+        System.out.print("@" + ">" + this.getCurrent() + "<" + "@");
         switch (this.after) {
             case Maybe.Nothing() -> System.out.print("||");
             case Maybe.Just(NodeLinkList<a> afterNode) -> System.out.println(afterNode.showRight());
@@ -45,11 +45,11 @@ public class NodeLinkList<a> {
         return switch (this.before) {
             case Maybe.Nothing() -> "||";
             case Maybe.Just(NodeLinkList<a> beforeNode) -> beforeNode.showLeft();
-        } + "@" + this;
+        } + "@" + this.getCurrent();
     }
 
     public String showRight() {
-        return this + "@" + switch (this.after) {
+        return this.getCurrent() + "@" + switch (this.after) {
             case Maybe.Nothing() -> "||";
             case Maybe.Just(NodeLinkList<a> afterNode) -> afterNode.showRight();
         };

@@ -12,10 +12,13 @@ import org.treefx.utils.adt.Maybe;
 import java.io.IOException;
 
 public class NodeCtx extends VBox {
+    private final Runnable toNavigation;
+
     @FXML private ImageView node_img;
     @FXML private TextField node_imgURL;
     @FXML private TextField node_name;
     @FXML private Button node_update;
+    @FXML private Button node_navigation;
     private Node node;
 
     public void setNode(Node node) {
@@ -33,7 +36,8 @@ public class NodeCtx extends VBox {
         this.loadNodeInfo();
     }
 
-    public NodeCtx(Node node) {
+    public NodeCtx(Runnable toNavigation, Node node) {
+        this.toNavigation = toNavigation;
         this.node = node;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("NodeCtx.fxml"));
@@ -51,6 +55,7 @@ public class NodeCtx extends VBox {
     public void initialize() {
         loadNodeInfo();
         node_update.setOnAction(event -> onNodeUpdate());
+        node_navigation.setOnAction(event -> this.toNavigation.run());
     }
 
     public void loadNodeInfo() {

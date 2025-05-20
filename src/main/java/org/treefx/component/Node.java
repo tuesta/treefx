@@ -50,7 +50,6 @@ public class Node extends VBox {
             case Maybe.Nothing() -> {}
             case Maybe.Just(Node nodeFather) ->
                 this.boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
-                    System.out.println(newValue.getWidth());
                     Point2D fatherPoint = nodeFather.localToScene(nodeFather.getWidth() / 2, nodeFather.getHeight());
                     Point2D childPoint = this.localToScene( newValue.getWidth() / 2, 0);
                     this.updateLine(fatherPoint, childPoint);
@@ -86,6 +85,8 @@ public class Node extends VBox {
     @FXML
     public void initialize() {
         loadNodeInfo();
+
+        removeFocus();
 
         node_container.setOnDragDetected(e -> {
             Dragboard db = node_container.startDragAndDrop(TransferMode.ANY);

@@ -12,12 +12,13 @@ import org.treefx.model.NodeInfo;
 import org.treefx.model.ziptree.TreeCtxStrict;
 import org.treefx.model.ziptree.ZipTreeStrict;
 import org.treefx.utils.adt.Maybe;
-import org.treefx.utils.adt.T;
 
 import java.io.IOException;
 import java.util.LinkedList;
 
 public class TreeEditor extends AnchorPane {
+    private final Runnable toNavigation;
+
     @FXML private SplitPane container;
     @FXML private AnchorPane tree;
 
@@ -33,15 +34,11 @@ public class TreeEditor extends AnchorPane {
         try { fxmlLoader.load(); } catch (IOException e) { throw new RuntimeException(e); }
     }
 
-    public TreeEditor() {
-        this.zipTree = new ZipTreeStrict<>(new NodeInfo("", new Maybe.Nothing<>(), new Point2D(0, 0), new LinkedList<>()));
-        loadFxml();
-    }
-
-    public TreeEditor(ZipTreeStrict<NodeInfo> zipTree) {
+    public TreeEditor(Runnable toNavigation, ZipTreeStrict<NodeInfo> zipTree) {
+        this.toNavigation = toNavigation;
         zipTree.toRoot();
         this.zipTree = zipTree;
-       loadFxml();
+        loadFxml();
     }
 
     @FXML
@@ -67,12 +64,14 @@ public class TreeEditor extends AnchorPane {
         });
 
         this.currentNode.setFocus();
-        this.nodeCtx = new NodeCtx(this.currentNode);
+        this.nodeCtx = new NodeCtx(this.toNavigation, this.currentNode);
         this.container.getItems().add(this.nodeCtx);
     }
 
     public void insertNode(Point2D pos) {
         this.zipTree.insertChild(new NodeInfo("", new Maybe.Nothing<>(), pos, new LinkedList<>()));
+        var children = this.zipTree.getCtx().getChildren();
+        this.zipTree.setCtx(children.getLast().getCurrent().snd());
         this.currentNode.removeFocus();
 
         this.currentNode = new Node(new Maybe.Just<>(this.currentNode), this.zipTree.getCtx(), this);
@@ -85,6 +84,8 @@ public class TreeEditor extends AnchorPane {
     }
 
     public void changeFocus(Node node) {
+        this.zipTree.setCtx(node.getNodeCtx());
+
         this.currentNode.removeFocus();
         node.setFocus();
         this.currentNode = node;
@@ -100,8 +101,10 @@ public class TreeEditor extends AnchorPane {
         tree.setOnDragDropped(e -> {
             this.currentNode.removeFocus();
             node.setFocus();
+            this.zipTree.setCtx(node.getNodeCtx());
             this.currentNode = node;
             Point2D p = tree.sceneToLocal(e.getSceneX(), e.getSceneY());
+            node.getNodeCtx().getValue().setPos(p);
             node.renderNode(p);
             this.nodeCtx.setNode(this.currentNode);
             e.setDropCompleted(true);

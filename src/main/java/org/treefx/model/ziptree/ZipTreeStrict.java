@@ -25,6 +25,8 @@ public class ZipTreeStrict<a> {
         this.root = ctx;
     }
 
+    public void setCtx(TreeCtxStrict<a> ctx) { this.ctx = ctx; }
+
     public a extract() { return this.ctx.getBrothers().extract().fromJust().fst(); }
     public TreeCtxStrict<a> getCtx() { return this.ctx; }
 
@@ -32,13 +34,25 @@ public class ZipTreeStrict<a> {
         switch (this.ctx.getFather()) {
             case Maybe.Nothing() -> { return false; }
             case Maybe.Just(TreeCtxStrict<a> fatherCtx) -> {
-                this.ctx = fatherCtx;
+                toNodeCtx(fatherCtx);
                 return true;
             }
         }
     }
 
     public void toRoot() { this.ctx = this.root; }
+
+    /**
+     * Actualiza el contexto del árbol al contexto del nodo especificado.
+     *
+     * @param nodeCtx el nuevo contexto del nodo que se establecerá como el contexto actual
+     */
+    public void toNodeCtx(TreeCtxStrict<a> nodeCtx) {
+        this.ctx = nodeCtx;
+        var brothers = this.ctx.getBrothers();
+        int ix = brothers.getIndex(nodeCtx.getCurrent());
+        brothers.to(ix);
+    }
 
     public int toChild(int ix) {
         var children = this.ctx.getChildren();
@@ -77,10 +91,8 @@ public class ZipTreeStrict<a> {
         var children = this.ctx.getChildren();
         var newCtx = new TreeCtxStrict<>(new Maybe.Just<>(this.ctx), null,children, new ZipListStrict<>());
         var current = new T.MkT<>(val, newCtx);
-        children.insertR(current);
-        newCtx.setCurrent(children.getMNode().fromJust());
-
-        this.ctx = newCtx;
+        children.insert(current);
+        newCtx.setCurrent(children.getLast());
     }
 
     public LinkedList<Movement> getRelativePosition(TreeCtxStrict<a> targetCtx) {

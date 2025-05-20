@@ -16,10 +16,13 @@ import org.treefx.utils.adt.Maybe;
 import java.io.IOException;
 
 public class TreeNavigation extends VBox {
+    private final Runnable toEditor;
+
     @FXML private VBox container;
     @FXML private AnchorPane buttons_space;
     @FXML private ImageView node_img;
     @FXML private Label node_name;
+    @FXML private Button node_editor;
     private Button upButton;
     private Button downButton;
     private Button leftButton;
@@ -27,7 +30,8 @@ public class TreeNavigation extends VBox {
 
     private final ZipTreeStrict<NodeInfo> zipTree;
 
-    public TreeNavigation(ZipTreeStrict<NodeInfo> zipTree) {
+    public TreeNavigation(Runnable toEditor, ZipTreeStrict<NodeInfo> zipTree) {
+        this.toEditor = toEditor;
         this.zipTree = zipTree;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TreeNavigation.fxml"));
@@ -43,6 +47,7 @@ public class TreeNavigation extends VBox {
         renderCurrentNode();
         buildMovementButtons();
         renderMovementButtons();
+        this.node_editor.setOnAction(e -> this.toEditor.run());
     }
 
     public void buildMovementButtons() {

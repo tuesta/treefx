@@ -9,6 +9,11 @@ public class ZipListStrict<a> implements ZipList<a>{
     private int size;
     private int index;
     private NodeLinkList<a> head = null;
+    private NodeLinkList<a> last = null;
+
+    public NodeLinkList<a> getHead() { return head; }
+
+    public NodeLinkList<a> getLast() { return last; }
 
     public int size() { return this.size; }
 
@@ -105,19 +110,30 @@ public class ZipListStrict<a> implements ZipList<a>{
     public void insertR(a val) {
         switch (this.mNode) {
             case Maybe.Nothing() -> {
-                this.head = new NodeLinkList<>(val);
-                this.mNode = new Maybe.Just<>(this.head);
+                var newNode = new NodeLinkList<>(val);
+                this.head = newNode;
+                this.last = newNode;
+                this.mNode = new Maybe.Just<>(newNode);
                 this.size = 1;
                 this.index = 1;
             }
             case Maybe.Just(NodeLinkList<a> node) -> {
-                var newNode = new Maybe.Just<>(new NodeLinkList<>(this.mNode, val, node.getAfter()));
-                node.setAfter(newNode);
-                this.mNode = newNode;
+                var newNode = new NodeLinkList<>(this.mNode, val, node.getAfter());
+                var mnewNode = new Maybe.Just<>(newNode);
+                node.setAfter(mnewNode);
+                this.mNode = mnewNode;
                 this.size++;
                 this.index++;
+                if (this.size == this.index) this.last = newNode;
             }
         }
+    }
+
+    public void insert(a val) {
+        int ix = this.index;
+        if (ix != 0) this.toEnd();
+        insertR(val);
+        this.to(ix);
     }
 
     public int to(int i) {
@@ -125,8 +141,18 @@ public class ZipListStrict<a> implements ZipList<a>{
         if (i < 1) i = 1;
         if (i > this.size) i = this.size;
 
+        int closenessToHead = i;
+        int closenessToLast = this.size - i;
+        int closenessToCurrent = Math.abs(this.index - i);
+
+        if (closenessToHead < closenessToLast && closenessToHead < closenessToCurrent) {
+            this.toStart();
+        } else if (closenessToLast < closenessToCurrent) {
+            this.toEnd();
+        }
+
         while (i != this.index) {
-            if (this.index < i) this.next();
+            if (this.index < i) System.out.println(this.next());
             else this.prev();
         }
 
@@ -136,6 +162,11 @@ public class ZipListStrict<a> implements ZipList<a>{
     private void toStart() {
         this.index = 1;
         this.mNode = new Maybe.Just<>(this.head);
+    }
+
+    private void toEnd() {
+        this.index = this.size;
+        this.mNode = new Maybe.Just<>(this.last);
     }
 
     public void mapM(Function<a, Void> k) {

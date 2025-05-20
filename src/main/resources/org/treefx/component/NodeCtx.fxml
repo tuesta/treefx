@@ -5,10 +5,11 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <fx:root fx:id="container" alignment="TOP_CENTER" maxWidth="250.0" minWidth="200.0" spacing="36.0" type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/21.0.3-internal" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="node_saveDB" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black;" text="Guardar Tree" textFill="WHITE">
+      <Button fx:id="node_saveDB" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black; -fx-cursor: hand;" text="Guardar Tree" textFill="WHITE">
          <VBox.margin>
             <Insets />
          </VBox.margin></Button>
@@ -17,8 +18,12 @@
             <ImageView fx:id="node_img" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
             <TextField fx:id="node_imgURL" promptText="[img_url]" style="-fx-border-color: black; -fx-border-width: 1;" />
             <TextField fx:id="node_name" promptText="[name]" style="-fx-border-color: black; -fx-border-width: 1;" />
-            <Button fx:id="node_update" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black;" text="Actualizar" textFill="WHITE" />
+            <Button fx:id="node_update" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black; -fx-cursor: hand;" text="Actualizar" textFill="WHITE" />
          </children>
       </VBox>
+      <Button fx:id="node_navigation" mnemonicParsing="false" style="-fx-background-color: black; -fx-cursor: hand;" text="   ⦿   " textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="32.0" />
+         </font></Button>
    </children>
 </fx:root>
