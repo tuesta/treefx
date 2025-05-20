@@ -7,18 +7,21 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import org.treefx.utils.adt.Maybe;
+import org.treefx.model.ConnectionDB;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class NodeCtx extends VBox {
-    private final Runnable toNavigation;
+    private final Consumer<Boolean> toHomeOrNav;
+    private final ConnectionDB connection;
 
     @FXML private ImageView node_img;
     @FXML private TextField node_imgURL;
     @FXML private TextField node_name;
     @FXML private Button node_update;
     @FXML private Button node_navigation;
+    @FXML private Button node_home;
     private Node node;
 
     public void setNode(Node node) {
@@ -30,14 +33,17 @@ public class NodeCtx extends VBox {
         String name = this.node_name.getText();
         String imgURL = this.node_imgURL.getText();
 
-        node.getNodeCtx().getValue().setName(name);
-        node.getNodeCtx().getValue().setImgURL(imgURL.isEmpty() ? new Maybe.Nothing<>() : new Maybe.Just<>(imgURL));
+        var nodeInfo = this.node.getNodeCtx().getValue();
+        this.connection.updateNodeInfo(nodeInfo.getId(), name, imgURL);
+        nodeInfo.setName(name);
+        nodeInfo.setImgURL(imgURL);
         node.loadNodeInfo();
         this.loadNodeInfo();
     }
 
-    public NodeCtx(Runnable toNavigation, Node node) {
-        this.toNavigation = toNavigation;
+    public NodeCtx(Consumer toHomeOrNav, ConnectionDB connection, Node node) {
+        this.toHomeOrNav = toHomeOrNav;
+        this.connection = connection;
         this.node = node;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("NodeCtx.fxml"));
@@ -55,22 +61,20 @@ public class NodeCtx extends VBox {
     public void initialize() {
         loadNodeInfo();
         node_update.setOnAction(event -> onNodeUpdate());
-        node_navigation.setOnAction(event -> this.toNavigation.run());
+        node_navigation.setOnAction(event -> this.toHomeOrNav.accept(true));
+        node_home.setOnAction(event -> this.toHomeOrNav.accept(false));
     }
 
     public void loadNodeInfo() {
-        Image imageLoad = new Image(getClass().getResource("image-edit.png").toExternalForm());
+        String imageLoad = getClass().getResource("image-edit.png").toExternalForm();
+        String nodeURL = node.getNodeCtx().getValue().getImgURL();
+        String url = nodeURL.isEmpty() ? imageLoad : nodeURL;
 
-        switch (node.getNodeCtx().getValue().getImgURL()) {
-            case Maybe.Nothing() -> node_imgURL.setText("");
-            case Maybe.Just(String url) -> {
-                var mImage = new Image(url);
-                if (!mImage.isError()) imageLoad = mImage;
-                node_imgURL.setText(url);
-            }
-        }
+        var mImage = new Image(url);
+        if (mImage.isError()) mImage = new Image(imageLoad);
+        node_imgURL.setText(nodeURL);
+        node_img.setImage(mImage);
 
-        node_img.setImage(imageLoad);
         node_name.setText(this.node.getNodeCtx().getValue().getName());
     }
 }

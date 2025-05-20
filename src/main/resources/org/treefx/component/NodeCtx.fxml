@@ -9,10 +9,6 @@
 
 <fx:root fx:id="container" alignment="TOP_CENTER" maxWidth="250.0" minWidth="200.0" spacing="36.0" type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx/21.0.3-internal" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="node_saveDB" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black; -fx-cursor: hand;" text="Guardar Tree" textFill="WHITE">
-         <VBox.margin>
-            <Insets />
-         </VBox.margin></Button>
       <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="12.0">
          <children>
             <ImageView fx:id="node_img" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
@@ -25,5 +21,9 @@
          <font>
             <Font name="System Bold" size="32.0" />
          </font></Button>
+      <Button fx:id="node_home" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: black; -fx-cursor: hand;" text="Volver al Inicio" textFill="WHITE" />
    </children>
+   <padding>
+      <Insets top="36.0" />
+   </padding>
 </fx:root>

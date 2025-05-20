@@ -133,17 +133,13 @@ public class Node extends VBox {
     }
 
     public void loadNodeInfo() {
-        Image imageLoad = new Image(getClass().getResource("image-edit.png").toExternalForm());
+        String imageLoad = getClass().getResource("image-edit.png").toExternalForm();
+        String nodeURL = nodeCtx.getValue().getImgURL();
+        String url = nodeURL.isEmpty() ? imageLoad : nodeURL;
 
-        switch (nodeCtx.getValue().getImgURL()) {
-            case Maybe.Nothing() -> {}
-            case Maybe.Just(String url) -> {
-                var mImage = new Image(url);
-                if (!mImage.isError()) imageLoad = mImage;
-            }
-        }
-
-        node_img.setImage(imageLoad);
+        var mImage = new Image(url);
+        if (mImage.isError()) mImage = new Image(imageLoad);
+        node_img.setImage(mImage);
 
         String nameLoad = nodeCtx.getValue().getName();
         node_name.setText(nameLoad.isEmpty() ? "[name]" : nameLoad);

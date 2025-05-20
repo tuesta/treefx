@@ -8,6 +8,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import org.treefx.model.ConnectionDB;
 import org.treefx.model.NodeInfo;
 import org.treefx.model.ziptree.TreeCtxStrict;
 import org.treefx.model.ziptree.ZipTreeStrict;
@@ -15,9 +16,11 @@ import org.treefx.utils.adt.Maybe;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 
 public class TreeEditor extends AnchorPane {
-    private final Runnable toNavigation;
+    private final Consumer<Boolean> toHomeOrNav;
+    private final ConnectionDB connection;
 
     @FXML private SplitPane container;
     @FXML private AnchorPane tree;
@@ -34,8 +37,9 @@ public class TreeEditor extends AnchorPane {
         try { fxmlLoader.load(); } catch (IOException e) { throw new RuntimeException(e); }
     }
 
-    public TreeEditor(Runnable toNavigation, ZipTreeStrict<NodeInfo> zipTree) {
-        this.toNavigation = toNavigation;
+    public TreeEditor(Consumer<Boolean> toHomeOrNav, ConnectionDB connection, ZipTreeStrict<NodeInfo> zipTree) {
+        this.toHomeOrNav = toHomeOrNav;
+        this.connection = connection;
         zipTree.toRoot();
         this.zipTree = zipTree;
         loadFxml();
@@ -63,13 +67,17 @@ public class TreeEditor extends AnchorPane {
             return newNode;
         });
 
+        Platform.runLater(this::layout);
+
         this.currentNode.setFocus();
-        this.nodeCtx = new NodeCtx(this.toNavigation, this.currentNode);
+        this.nodeCtx = new NodeCtx(this.toHomeOrNav, this.connection, this.currentNode);
         this.container.getItems().add(this.nodeCtx);
     }
 
     public void insertNode(Point2D pos) {
-        this.zipTree.insertChild(new NodeInfo("", new Maybe.Nothing<>(), pos, new LinkedList<>()));
+        int newId = this.connection.insertChild(pos, this.zipTree.getCtx().getValue().getId());
+        this.zipTree.insertChild(new NodeInfo(newId, "", "", pos, new LinkedList<>()));
+
         var children = this.zipTree.getCtx().getChildren();
         this.zipTree.setCtx(children.getLast().getCurrent().snd());
         this.currentNode.removeFocus();
@@ -104,7 +112,11 @@ public class TreeEditor extends AnchorPane {
             this.zipTree.setCtx(node.getNodeCtx());
             this.currentNode = node;
             Point2D p = tree.sceneToLocal(e.getSceneX(), e.getSceneY());
-            node.getNodeCtx().getValue().setPos(p);
+
+            var nodeInfo = node.getNodeCtx().getValue();
+            connection.updateNodeInfo(nodeInfo.getId(), p);
+            nodeInfo.setPos(p);
+
             node.renderNode(p);
             this.nodeCtx.setNode(this.currentNode);
             e.setDropCompleted(true);

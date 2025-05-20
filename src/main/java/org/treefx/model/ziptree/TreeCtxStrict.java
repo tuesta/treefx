@@ -45,19 +45,13 @@ public class TreeCtxStrict<a> {
     public void downMap(Function<a, Void> k) {
         var a = this.current.getCurrent().fst();
         k.apply(a);
-        this.children.mapM(x -> {
-            x.snd().downMap(k);
-            return null;
-        });
+        this.children.mapM(x -> x.snd().downMap(k));
     }
 
     public <b> void downMapWithFatherGO(Maybe<b> mfatherResult, BiFunction<Maybe<b>, TreeCtxStrict<a>, b> k) {
         var a = this.current.getCurrent().snd();
         var b = k.apply(mfatherResult, a);
-        this.children.mapM(x -> {
-            x.snd().downMapWithFatherGO(new Maybe.Just<>(b), k);
-            return null;
-        });
+        this.children.mapM(x -> x.snd().downMapWithFatherGO(new Maybe.Just<>(b), k));
     }
 
     public <b> void downMapWithFather(BiFunction<Maybe<b>, TreeCtxStrict<a>, b> k) {

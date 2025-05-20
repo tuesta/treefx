@@ -11,7 +11,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.treefx.model.NodeInfo;
 import org.treefx.model.ziptree.ZipTreeStrict;
-import org.treefx.utils.adt.Maybe;
 
 import java.io.IOException;
 
@@ -106,16 +105,14 @@ public class TreeNavigation extends VBox {
     }
 
     public void renderCurrentNode() {
-        Image imageLoad = new Image(getClass().getResource("image-edit.png").toExternalForm());
-        switch (zipTree.getCtx().getValue().getImgURL()) {
-            case Maybe.Nothing() -> {}
-            case Maybe.Just(String url) -> {
-                var mImage = new Image(url);
-                if (!mImage.isError()) imageLoad = mImage;
-            }
-        }
+        String imageLoad = getClass().getResource("image-edit.png").toExternalForm();
+        String nodeURL = zipTree.getCtx().getValue().getImgURL();
+        String url = nodeURL.isEmpty() ? imageLoad : nodeURL;
 
-        node_img.setImage(imageLoad);
+        var mImage = new Image(url);
+        if (mImage.isError()) mImage = new Image(imageLoad);
+
+        node_img.setImage(mImage);
 
         resizeImage(container.getWidth(), container.getHeight() - 40);
         container.layoutBoundsProperty().addListener((observable, oldValue, newValue) ->

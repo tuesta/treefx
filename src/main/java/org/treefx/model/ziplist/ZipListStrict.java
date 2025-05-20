@@ -2,7 +2,7 @@ package org.treefx.model.ziplist;
 
 import org.treefx.utils.adt.Maybe;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 public class ZipListStrict<a> implements ZipList<a>{
     private Maybe<NodeLinkList<a>> mNode;
@@ -152,7 +152,7 @@ public class ZipListStrict<a> implements ZipList<a>{
         }
 
         while (i != this.index) {
-            if (this.index < i) System.out.println(this.next());
+            if (this.index < i) this.next();
             else this.prev();
         }
 
@@ -169,12 +169,12 @@ public class ZipListStrict<a> implements ZipList<a>{
         this.mNode = new Maybe.Just<>(this.last);
     }
 
-    public void mapM(Function<a, Void> k) {
+    public void mapM(Consumer<a> k) {
         if (size == 0) return;
 
         toStart();
         do {
-            k.apply(this.mNode.fromJust().getCurrent());
+            k.accept(this.mNode.fromJust().getCurrent());
         }
         while (this.next());
         this.toStart();
