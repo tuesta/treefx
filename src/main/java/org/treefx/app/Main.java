@@ -13,7 +13,20 @@ import org.treefx.utils.adt.Maybe;
 
 import java.util.LinkedList;
 
+/**
+ * Clase principal de la aplicación TreeFX.
+ * Encargada de inicializar y mostrar la interfaz gráfica principal utilizando JavaFX.
+ * Construye un árbol de nodos de ejemplo que es visualizado por el componente TreeNavigation.
+ */
 public class Main extends Application {
+
+    /**
+     * Punto principal de entrada para aplicaciones JavaFX.
+     * Configura y muestra la ventana principal de la aplicación,
+     * además de construir un árbol jerárquico de nodos de ejemplo al iniciar.
+     *
+     * @param primaryStage El escenario principal proporcionado por el sistema JavaFX.
+     */
     @Override
     public void start(Stage primaryStage) {
         BorderPane root = new BorderPane();
@@ -40,6 +53,12 @@ public class Main extends Application {
         root.setCenter(new TreeNavigation(zipTree));
     }
 
+    /**
+     * Metodo main estándar para aplicaciones Java.
+     * Inicia la ejecución de la aplicación JavaFX.
+     *
+     * @param args Argumentos de línea de comandos, no utilizados actualmente.
+     */
     public static void main(String[] args) {
         launch(args);
     }

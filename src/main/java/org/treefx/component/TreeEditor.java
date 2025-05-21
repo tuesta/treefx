@@ -17,6 +17,11 @@ import org.treefx.utils.adt.T;
 import java.io.IOException;
 import java.util.LinkedList;
 
+/**
+ * Componente principal de edición visual de árboles.
+ * Permite crear, visualizar y manipular la estructura jerárquica de nodos.
+ * Soporta inserción, enfoque y operaciones de arrastrar-soltar de nodos.
+ */
 public class TreeEditor extends AnchorPane {
     @FXML private SplitPane container;
     @FXML private AnchorPane tree;
@@ -25,6 +30,9 @@ public class TreeEditor extends AnchorPane {
     private NodeCtx nodeCtx;
     private Node currentNode;
 
+    /**
+     * Carga la vista definida en el archivo FXML y enlaza los controles UI.
+     */
     private void loadFxml() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TreeEditor.fxml"));
         fxmlLoader.setRoot(this);
@@ -33,17 +41,30 @@ public class TreeEditor extends AnchorPane {
         try { fxmlLoader.load(); } catch (IOException e) { throw new RuntimeException(e); }
     }
 
+    /**
+     * Constructor por defecto. Inicializa un árbol vacío con una raíz.
+     */
     public TreeEditor() {
         this.zipTree = new ZipTreeStrict<>(new NodeInfo("", new Maybe.Nothing<>(), new Point2D(0, 0), new LinkedList<>()));
         loadFxml();
     }
 
+    /**
+     * Constructor que parte de un árbol ya existente.
+     * @param zipTree Árbol a editar
+     */
     public TreeEditor(ZipTreeStrict<NodeInfo> zipTree) {
         zipTree.toRoot();
         this.zipTree = zipTree;
        loadFxml();
     }
 
+    /**
+     * Inicializador llamado tras cargar el FXML.
+     * - Configura el click derecho para insertar nodos.
+     * - Renderiza todos los nodos actuales en el árbol.
+     * - Establece el nodo inicial como enfocado.
+     */
     @FXML
     public void initialize() {
         this.tree.setOnMouseClicked(e -> {
@@ -71,6 +92,11 @@ public class TreeEditor extends AnchorPane {
         this.container.getItems().add(this.nodeCtx);
     }
 
+    /**
+     * Inserta un nodo hijo en la posición indicada.
+     * Actualiza el foco al nuevo nodo y lo agrega visualmente.
+     * @param pos Posición donde colocar el nuevo nodo
+     */
     public void insertNode(Point2D pos) {
         this.zipTree.insertChild(new NodeInfo("", new Maybe.Nothing<>(), pos, new LinkedList<>()));
         this.currentNode.removeFocus();
@@ -84,6 +110,10 @@ public class TreeEditor extends AnchorPane {
         this.nodeCtx.setNode(this.currentNode);
     }
 
+    /**
+     * Cambia el foco al nodo especificado, actualizando la interfaz visual y contextual.
+     * @param node Nodo al que cambiar el foco
+     */
     public void changeFocus(Node node) {
         this.currentNode.removeFocus();
         node.setFocus();
@@ -91,6 +121,11 @@ public class TreeEditor extends AnchorPane {
         this.nodeCtx.setNode(this.currentNode);
     }
 
+    /**
+     * Habilita la detección y manejo de eventos de arrastrar/soltar para un nodo específico.
+     * Cambia el foco y la posición del nodo arrastrado.
+     * @param node Nodo a arrastrar/soltar
+     */
     public void dragDetection(Node node) {
         container.setOnDragOver(e -> {
             e.acceptTransferModes(TransferMode.ANY);

@@ -15,6 +15,10 @@ import org.treefx.utils.adt.Maybe;
 
 import java.io.IOException;
 
+/**
+ * Componente visual para la navegación en un árbol tipo "zipper", permitiendo
+ * al usuario moverse entre nodos y visualizar información del nodo actual.
+ */
 public class TreeNavigation extends VBox {
     @FXML private VBox container;
     @FXML private AnchorPane buttons_space;
@@ -27,6 +31,10 @@ public class TreeNavigation extends VBox {
 
     private final ZipTreeStrict<NodeInfo> zipTree;
 
+    /**
+     * Constructor: inicializa el componente y carga la vista desde FXML.
+     * @param zipTree árbol zipper a visualizar y navegar.
+     */
     public TreeNavigation(ZipTreeStrict<NodeInfo> zipTree) {
         this.zipTree = zipTree;
 
@@ -38,6 +46,10 @@ public class TreeNavigation extends VBox {
     }
 
 
+    /**
+     * Metodo invocado automáticamente por JavaFX al inicializar la vista.
+     * Renderiza el nodo actual y crea los botones de movimiento.
+     */
     @FXML
     public void initialize() {
         renderCurrentNode();
@@ -45,6 +57,9 @@ public class TreeNavigation extends VBox {
         renderMovementButtons();
     }
 
+    /**
+     * Crea los botones de movimiento (arriba, abajo, izq, der), los configura y los agrega al layout.
+     */
     public void buildMovementButtons() {
         // Create buttons for each direction
         String buttonStyle = """
@@ -89,7 +104,11 @@ public class TreeNavigation extends VBox {
         this.buttons_space.getChildren().add(gridPane);
         
     }
-    
+
+    /**
+     * (Des)habilita los botones de navegación según la validez del movimiento,
+     * dependiendo del contexto actual del árbol.
+     */
     public void renderMovementButtons() {
         this.upButton.setDisable(this.zipTree.getCtx().getFather().isNothing());
 
@@ -100,6 +119,10 @@ public class TreeNavigation extends VBox {
         this.rightButton.setDisable(!this.zipTree.getCtx().getBrothers().hasNext());
     }
 
+    /**
+     * Muestra la información visual del nodo actual: imagen y nombre.
+     * Toma la URL de la imagen del nodo, o una imagen por defecto.
+     */
     public void renderCurrentNode() {
         Image imageLoad = new Image(getClass().getResource("image-edit.png").toExternalForm());
         switch (zipTree.getCtx().getValue().getImgURL()) {
@@ -120,6 +143,11 @@ public class TreeNavigation extends VBox {
         node_name.setText(zipTree.getCtx().getValue().getName());
     }
 
+    /**
+     * Redimensiona la imagen del nodo respetando la relación de aspecto y centro.
+     * @param "containerWidth" Ancho disponible
+     * @param "containerHeight" Alto disponible
+     */
     public void resizeImage(double containerWidth, double containerHeight) {
         if (containerHeight / containerWidth >= node_img.getImage().getHeight() / node_img.getImage().getWidth()) {
             node_img.setFitWidth(containerWidth);
@@ -133,7 +161,7 @@ public class TreeNavigation extends VBox {
     }
 
     /**
-     * Moves to the parent node if available.
+     * Navega al nodo padre, si existe. Actualiza la interfaz tras el movimiento.
      */
     private void moveUp() {
         this.zipTree.toFather();
@@ -142,7 +170,7 @@ public class TreeNavigation extends VBox {
     }
 
     /**
-     * Moves to the child node if available.
+     * Navega al primer hijo del nodo, si existe. Actualiza la interfaz tras el movimiento.
      */
     private void moveDown() {
         this.zipTree.down();
@@ -151,7 +179,7 @@ public class TreeNavigation extends VBox {
     }
 
     /**
-     * Moves to the previous sibling node if available.
+     * Navega al hermano anterior, si existe. Actualiza la interfaz tras el movimiento.
      */
     private void moveLeft() {
         this.zipTree.prev();
@@ -160,7 +188,7 @@ public class TreeNavigation extends VBox {
     }
 
     /**
-     * Moves to the next sibling node if available.
+     * Navega al próximo hermano, si existe. Actualiza la interfaz tras el movimiento.
      */
     private void moveRight() {
         this.zipTree.next();

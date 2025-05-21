@@ -4,6 +4,12 @@ import org.treefx.utils.adt.Maybe;
 
 import java.util.function.Function;
 
+/**
+ * Implementación estricta de una lista doblemente enlazada con funcionalidad de cursor (ZipList).
+ * Permite la navegación bidireccional a través de los elementos y operaciones sobre el elemento actual.
+ *
+ * @param <a> Tipo de los elementos almacenados en la lista.
+ */
 public class ZipListStrict<a> implements ZipList<a>{
     private Maybe<NodeLinkList<a>> mNode;
     private int size;
