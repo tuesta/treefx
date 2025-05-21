@@ -6,14 +6,34 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Clase que gestiona la conexión a una base de datos MySQL.
+ * Utiliza el patrón Maybe para manejar la posibilidad de una conexión fallida.
+ */
 public class ConnectionDB
 {
+    /** Conexión a la base de datos envuelta en un Maybe para manejo seguro */
     private Maybe<Connection> mconnection;
 
+    /**
+     * Verifica si la conexión a la base de datos se estableció exitosamente.
+     *
+     * @return true si la conexión está establecida, false en caso contrario
+     */
     public boolean success() {
         return this.mconnection.isJust();
     }
 
+    /**
+     * Constructor que establece una conexión a la base de datos MySQL.
+     * Si la conexión falla, se almacena un Maybe.Nothing.
+     *
+     * @param host dirección del servidor de base de datos
+     * @param port puerto de conexión
+     * @param user nombre de usuario
+     * @param pass contraseña
+     * @param bd nombre de la base de datos
+     */
     public ConnectionDB(String host, String port, String user, String pass, String bd) {
         String thost = "sql7.freesqldatabase.com";
         String tport = "3306";

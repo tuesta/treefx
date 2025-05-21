@@ -10,10 +10,22 @@ import java.util.Stack;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Clase que implementa un árbol zipper estricto.
+ * Permite navegar, manipular y realizar transformaciones sobre los nodos de un árbol
+ * utilizando una estructura de contexto de árbol.
+ *
+ * @param <a> Tipo de valores almacenados en los nodos del árbol
+ */
 public class ZipTreeStrict<a> {
     private TreeCtxStrict<a> ctx;
     private final TreeCtxStrict<a> root;
 
+    /**
+     * Constructor que inicializa un árbol zipper a partir de un valor en la raíz.
+     *
+     * @param val Valor inicial en la raíz del árbol
+     */
     public ZipTreeStrict(a val) {
         ZipListStrict<T<a, TreeCtxStrict<a>>> brothers = new ZipListStrict<>();
         this.ctx = new TreeCtxStrict<>(new Maybe.Nothing<>(), null, brothers, new ZipListStrict<>());
@@ -25,9 +37,25 @@ public class ZipTreeStrict<a> {
         this.root = ctx;
     }
 
+    /**
+     * Extrae el valor del nodo actual en el contexto del árbol.
+     *
+     * @return Valor almacenado en el nodo actual
+     */
     public a extract() { return this.ctx.getBrothers().extract().fromJust().fst(); }
+
+    /**
+     * Obtiene el contexto actual del árbol.
+     *
+     * @return Contexto actual del árbol
+     */
     public TreeCtxStrict<a> getCtx() { return this.ctx; }
 
+    /**
+     * Mueve el contexto al nodo padre del actual.
+     *
+     * @return true si el movimiento fue exitoso, false si no existe un nodo padre
+     */
     public boolean toFather() {
         switch (this.ctx.getFather()) {
             case Maybe.Nothing() -> { return false; }
@@ -38,8 +66,17 @@ public class ZipTreeStrict<a> {
         }
     }
 
+    /**
+     * Mueve el contexto al nodo raíz del árbol.
+     */
     public void toRoot() { this.ctx = this.root; }
 
+    /**
+     * Mueve el contexto al hijo en la posición especificada.
+     *
+     * @param ix Índice del hijo al que se desea mover
+     * @return Nuevo índice al que se movió el contexto. Devuelve 0 si el movimiento falla.
+     */
     public int toChild(int ix) {
         var children = this.ctx.getChildren();
 
@@ -50,6 +87,11 @@ public class ZipTreeStrict<a> {
         return newIx;
     }
 
+    /**
+     * Mueve el contexto al siguiente hermano del nodo actual.
+     *
+     * @return true si el movimiento fue exitoso, false si no hay siguiente hermano
+     */
     public boolean next() {
         if (this.ctx.getBrothers().next()) {
             this.ctx = this.ctx.getBrothers().getMNode().fromJust().getCurrent().snd();
@@ -58,6 +100,11 @@ public class ZipTreeStrict<a> {
         return false;
     }
 
+    /**
+     * Mueve el contexto al hermano anterior del nodo actual.
+     *
+     * @return true si el movimiento fue exitoso, false si no hay hermano anterior
+     */
     public boolean prev() {
         if (this.ctx.getBrothers().prev()) {
             this.ctx = this.ctx.getBrothers().getMNode().fromJust().getCurrent().snd();
@@ -66,6 +113,11 @@ public class ZipTreeStrict<a> {
         return false;
     }
 
+    /**
+     * Mueve el contexto al primer hijo del nodo actual.
+     *
+     * @return true si el movimiento fue exitoso, false si no hay hijos
+     */
     public boolean down() {
         var children = this.ctx.getChildren();
         if (children.getMNode().isNothing()) return false;
@@ -73,6 +125,11 @@ public class ZipTreeStrict<a> {
         return true;
     }
 
+    /**
+     * Inserta un nuevo hijo en el nodo actual y mueve el contexto al hijo recién insertado.
+     *
+     * @param val Valor del nuevo nodo hijo
+     */
     public void insertChild(a val) {
         var children = this.ctx.getChildren();
         var newCtx = new TreeCtxStrict<>(new Maybe.Just<>(this.ctx), null,children, new ZipListStrict<>());
@@ -83,6 +140,13 @@ public class ZipTreeStrict<a> {
         this.ctx = newCtx;
     }
 
+    /**
+     * Obtiene la lista de movimientos necesarios para navegar desde el nodo actual
+     * hasta un nodo objetivo en el árbol.
+     *
+     * @param targetCtx Contexto del nodo objetivo
+     * @return Lista de movimientos necesarios
+     */
     public LinkedList<Movement> getRelativePosition(TreeCtxStrict<a> targetCtx) {
         Stack<TreeCtxStrict<a>> ancestorsCurrent = new Stack<>();
         ancestorsCurrent.push(this.ctx);
@@ -125,6 +189,12 @@ public class ZipTreeStrict<a> {
         return movements;
     }
 
+    /**
+     * Realiza una secuencia de movimientos para alcanzar un nodo específico.
+     *
+     * @param movements Lista de movimientos para realizar
+     * @return true si el movimiento fue exitoso, false si alguno falló
+     */
     public boolean moveTo(LinkedList<Movement> movements) {
         for (Movement m : movements) {
             switch (m) {
@@ -139,7 +209,18 @@ public class ZipTreeStrict<a> {
         return true;
     }
 
+    /**
+     * Aplica una función a todos los nodos del árbol, descendiendo desde la raíz.
+     *
+     * @param k Función a aplicar
+     */
     public void mapM(Function<a, Void> k) { this.root.downMap(k); }
 
+    /**
+     * Aplica una función a todos los nodos del árbol junto con resultados calculados para sus padres.
+     *
+     * @param k Función que utiliza el resultado del padre para calcular el valor del nodo actual
+     * @param <b> Tipo del resultado producido
+     */
     public <b> void mapWithFatherM(BiFunction<Maybe<b>, TreeCtxStrict<a>, b> k) { this.root.downMapWithFather(k); }
 }
