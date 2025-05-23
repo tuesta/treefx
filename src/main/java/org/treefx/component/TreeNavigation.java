@@ -11,8 +11,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.treefx.model.MovementInSpace;
 import org.treefx.model.NodeInfo;
-import org.treefx.model.ziptree.TreeCtxStrict;
 import org.treefx.model.ziptree.ZipTreeStrict;
+import org.treefx.utils.UI;
 import org.treefx.utils.adt.Movement;
 import org.treefx.utils.adt.T;
 import javafx.geometry.Point2D;
@@ -57,51 +57,6 @@ public class TreeNavigation extends VBox {
         this.node_editor.setOnAction(e -> this.toEditor.run());
     }
 
-    public void buildMovementButtons() {
-        // Create buttons for each direction
-        String buttonStyle = """
-                -fx-background-color: rgba(255, 255, 255, 0.3);
-                -fx-border-color: white;
-                -fx-border-width: 1;
-                -fx-text-fill: black;
-                -fx-font-size: 16;
-                -fx-cursor: hand;
-                """;
-
-        this.upButton = new Button("↑");
-        this.upButton.setStyle(buttonStyle);
-        this.upButton.setOnAction(e -> moveUp());
-        
-        this.downButton = new Button("↓");
-        this.downButton.setStyle(buttonStyle);
-        this.downButton.setOnAction(e -> moveDown());
-        
-        this.leftButton = new Button("←");
-        this.leftButton.setStyle(buttonStyle);
-        this.leftButton.setOnAction(e -> moveLeft());
-        
-        this.rightButton = new Button("→");
-        rightButton.setStyle(buttonStyle);
-        this.rightButton.setOnAction(e -> moveRight());
-
-        // Create a GridPane layout
-        var gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-
-        // Add buttons to the GridPane with their respective positions
-        gridPane.add(this.upButton, 1, 0);    // Centered in the top row
-        gridPane.add(this.leftButton, 0, 1);  // Left in the middle row
-        gridPane.add(this.rightButton, 2, 1); // Right in the middle row
-        gridPane.add(this.downButton, 1, 2);  // Centered in the bottom row
-
-        // Add GridPane to buttons_space and position it in the bottom-right corner
-        AnchorPane.setBottomAnchor(gridPane, 10.0);
-        AnchorPane.setRightAnchor(gridPane, 10.0);
-        this.buttons_space.getChildren().add(gridPane);
-        
-    }
-    
     public void renderMovementButtons() {
         this.upButton.setDisable(this.zipTree.getCtx().getFather().isNothing());
 
@@ -113,29 +68,26 @@ public class TreeNavigation extends VBox {
     }
 
     public void renderCurrentNode() {
+        NodeInfo currentNode = this.zipTree.extract();
         for (T<Point2D, Button> button : btns) buttons_space.getChildren().remove(button.snd());
 
         String imageLoad = getClass().getResource("image-edit.png").toExternalForm();
-        String nodeURL = zipTree.extract().getImgURL();
-        String url = nodeURL.isEmpty() ? imageLoad : nodeURL;
+        Image img = UI.loadImageOrDefault(imageLoad, currentNode.getImgURL());
+        node_img.setImage(img);
+        resizeImage(container.getWidth(), container.getHeight() - 40);
 
-        var mImage = new Image(url);
-        if (mImage.isError()) mImage = new Image(imageLoad);
-
-        node_img.setImage(mImage);
-        LinkedList<MovementInSpace> toChildrens = this.zipTree.extract().getChildren();
+        LinkedList<MovementInSpace> toChildrens = currentNode.getChildren();
         LinkedList<T<Point2D, Button>> toChildrensBtn = new LinkedList<>();
         this.btns = toChildrensBtn;
-        resizeImage(container.getWidth(), container.getHeight() - 40);
 
         for (var toChild : toChildrens) {
             double x = toChild.getPos().getX() * node_img.getBoundsInParent().getWidth();
             double y = toChild.getPos().getY() * node_img.getBoundsInParent().getHeight();
             Point2D coordsInParent = node_img.localToParent(new Point2D(x, y));
 
-            var toButton = this.createCircularButtonAt(0, 0);
-            toButton.setLayoutX(coordsInParent.getX());
-            toButton.setLayoutY(coordsInParent.getY());
+            var toButton = UI.createCircularButtonAt(30, 0, 0);
+            toButton.setLayoutX(coordsInParent.getX() - 30);
+            toButton.setLayoutY(coordsInParent.getY() - 30);
 
             toButton.setOnAction(event -> this.moveTo(toChild.getMovements()));
             this.buttons_space.getChildren().add(toButton);
@@ -146,39 +98,17 @@ public class TreeNavigation extends VBox {
             resizeImage(newValue.getWidth(), newValue.getHeight() - 40);
 
             for (T<Point2D, Button> button : toChildrensBtn) {
-                node_img.getBoundsInParent().getWidth();
                 double x = button.fst().getX() * node_img.getBoundsInParent().getWidth();
                 double y = button.fst().getY() * node_img.getBoundsInParent().getHeight();
 
                 Point2D coordsInParent = node_img.localToParent(new Point2D(x, y));
-                button.snd().setLayoutX(coordsInParent.getX());
-                button.snd().setLayoutY(coordsInParent.getY());
+                button.snd().setLayoutX(coordsInParent.getX() - 30);
+                button.snd().setLayoutY(coordsInParent.getY() - 30);
             }
         });
 
         node_name.setText(zipTree.extract().getName());
     }
-
-    private Button createCircularButtonAt(double x, double y) {
-        Button button = new Button();
-
-        button.setStyle("""
-                -fx-background-color: rgba(0, 0, 0, 0.3);
-                -fx-text-fill: white;
-                -fx-background-radius: 30px;
-                -fx-min-width: 60px;
-                -fx-min-height: 60px;
-                -fx-max-width: 60px;
-                -fx-max-height: 60px;
-                """);
-
-        double radius = 30;
-        button.setLayoutX(x - radius);
-        button.setLayoutY(y - radius);
-
-        return button;
-    }
-
 
     public void resizeImage(double containerWidth, double containerHeight) {
         if (containerHeight / containerWidth >= node_img.getImage().getHeight() / node_img.getImage().getWidth()) {
@@ -194,7 +124,6 @@ public class TreeNavigation extends VBox {
 
     private void moveTo(LinkedList<Movement> nodeCtx) {
         this.zipTree.moveTo(nodeCtx);
-
         renderCurrentNode();
         renderMovementButtons();
     }
@@ -233,5 +162,49 @@ public class TreeNavigation extends VBox {
         this.zipTree.next();
         renderCurrentNode();
         renderMovementButtons();
+    }
+
+    public void buildMovementButtons() {
+        // Create buttons for each direction
+        String buttonStyle = """
+                -fx-background-color: rgba(255, 255, 255, 0.3);
+                -fx-border-color: white;
+                -fx-border-width: 1;
+                -fx-text-fill: black;
+                -fx-font-size: 16;
+                -fx-cursor: hand;
+                """;
+
+        this.upButton = new Button("↑");
+        this.upButton.setStyle(buttonStyle);
+        this.upButton.setOnAction(e -> moveUp());
+
+        this.downButton = new Button("↓");
+        this.downButton.setStyle(buttonStyle);
+        this.downButton.setOnAction(e -> moveDown());
+
+        this.leftButton = new Button("←");
+        this.leftButton.setStyle(buttonStyle);
+        this.leftButton.setOnAction(e -> moveLeft());
+
+        this.rightButton = new Button("→");
+        rightButton.setStyle(buttonStyle);
+        this.rightButton.setOnAction(e -> moveRight());
+
+        // Create a GridPane layout
+        var gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        // Add buttons to the GridPane with their respective positions
+        gridPane.add(this.upButton, 1, 0);    // Centered in the top row
+        gridPane.add(this.leftButton, 0, 1);  // Left in the middle row
+        gridPane.add(this.rightButton, 2, 1); // Right in the middle row
+        gridPane.add(this.downButton, 1, 2);  // Centered in the bottom row
+
+        // Add GridPane to buttons_space and position it in the bottom-right corner
+        AnchorPane.setBottomAnchor(gridPane, 10.0);
+        AnchorPane.setRightAnchor(gridPane, 10.0);
+        this.buttons_space.getChildren().add(gridPane);
     }
 }

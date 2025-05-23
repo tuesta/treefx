@@ -16,8 +16,8 @@ public class ZipListStrict<a> implements ZipList<a>{
     public NodeLinkList<a> getLast() { return last; }
 
     public int size() { return this.size; }
-    public int getIx() { return this.index; }
 
+    public int getIx() { return this.index; }
 
     @Override
     public void setCurrent(a a) {

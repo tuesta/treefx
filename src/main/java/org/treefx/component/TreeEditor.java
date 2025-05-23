@@ -1,6 +1,5 @@
 package org.treefx.component;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -112,6 +111,13 @@ public class TreeEditor extends AnchorPane {
 
     public void changeFocus(Node node) {
         this.zipTree.setCtx(node.getNodeCtx());
+
+        switch (this.mCoCurrentNode) {
+            case Maybe.Just(Node coCurrentNode) -> {
+                if (coCurrentNode == node) this.mCoCurrentNode = new Maybe.Nothing<>();
+            }
+            case Maybe.Nothing() -> {}
+        }
 
         this.currentNode.removeFocus();
         node.setFocus();

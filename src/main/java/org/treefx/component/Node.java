@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
 import org.treefx.model.NodeInfo;
 import org.treefx.model.ziptree.TreeCtxStrict;
+import org.treefx.utils.UI;
 import org.treefx.utils.adt.Maybe;
 
 import java.io.IOException;
@@ -147,12 +148,8 @@ public class Node extends VBox {
 
     public void loadNodeInfo() {
         String imageLoad = getClass().getResource("image-edit.png").toExternalForm();
-        String nodeURL = nodeCtx.getValue().getImgURL();
-        String url = nodeURL.isEmpty() ? imageLoad : nodeURL;
-
-        var mImage = new Image(url);
-        if (mImage.isError()) mImage = new Image(imageLoad);
-        node_img.setImage(mImage);
+        Image img = UI.loadImageOrDefault(imageLoad, nodeCtx.getValue().getImgURL());
+        node_img.setImage(img);
 
         String nameLoad = nodeCtx.getValue().getName();
         node_name.setText(nameLoad.isEmpty() ? "[name]" : nameLoad);

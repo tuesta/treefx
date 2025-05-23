@@ -21,7 +21,9 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 
 public class Main extends Application {
-    public static ListView<T<Integer, String>> createList(ConnectionDB connection, Consumer<Integer> toEditor, LinkedList<T<Integer, String>> xs) {
+    private ConnectionDB connection;
+
+    public ListView<T<Integer, String>> createList(Consumer<Integer> toEditor, LinkedList<T<Integer, String>> xs) {
         var listView = new ListView<T<Integer, String>>();
         listView.setFixedCellSize(40);
         listView.setFocusTraversable(false);
@@ -64,7 +66,7 @@ public class Main extends Application {
         return listView;
     }
 
-    public static HBox createNewTree(Consumer<String> toEditor) {
+    public HBox createNewTree(Consumer<String> toEditor) {
         var inputField = new javafx.scene.control.TextField();
         HBox.setHgrow(inputField, javafx.scene.layout.Priority.ALWAYS);
         inputField.setMaxWidth(Double.MAX_VALUE);
@@ -92,18 +94,18 @@ public class Main extends Application {
         return container;
     }
 
-    public static void home(ConnectionDB connection, BorderPane root) {
-        LinkedList<T<Integer, String>> xs = connection.getAllRoots();
+    public void home(BorderPane root) {
+        LinkedList<T<Integer, String>> xs = this.connection.getAllRoots();
 
-        var listView = createList(connection, id -> {
-            var zipTree = connection.getZipTree(id);
-            startTree(zipTree, connection, root);
+        var listView = createList(id -> {
+            var zipTree = this.connection.getZipTree(id);
+            startTree(zipTree, root);
         }, xs);
         var createNewTree = createNewTree(name -> {
-            int rootID = connection.insertRoot(name);
+            int rootID = this.connection.insertRoot(name);
             var newNode = new NodeInfo(rootID, "", "", new Point2D(100, 100), new LinkedList<>());
 
-            startTree(new ZipTreeStrict<>(newNode), connection, root);
+            startTree(new ZipTreeStrict<>(newNode), root);
         });
 
         var container = new VBox(12, listView, createNewTree);
@@ -112,7 +114,7 @@ public class Main extends Application {
         root.setCenter(container);
     }
 
-    public static void startTree(ZipTreeStrict<NodeInfo> zipTree, ConnectionDB connection, BorderPane root) {
+    public void startTree(ZipTreeStrict<NodeInfo> zipTree, BorderPane root) {
         Consumer<Boolean> toHomeOrNav = new Consumer<>() {
             @Override
             public void accept(Boolean homeOrNav) {
@@ -121,7 +123,7 @@ public class Main extends Application {
                     root.setCenter(new TreeNavigation(() ->
                         root.setCenter(new TreeEditor(this, connection, zipTree)), zipTree)
                     );
-                } else home(connection, root);
+                } else home(root);
             }
         };
 
@@ -130,19 +132,22 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.connection = new ConnectionDB("localhost", "3306", "root", "MyNewPass", "treefx");
+
         BorderPane root = new BorderPane();
         try {
             Scene scene = new Scene(root,640,480);
             primaryStage.setScene(scene);
+            primaryStage.setTitle("TreeFX");
             primaryStage.show();
         } catch(Exception e) {
             e.printStackTrace();
         }
-        ConnectionDB connectionDB = new ConnectionDB("localhost", "3306", "root", "MyNewPass", "treefx");
-        home(connectionDB, root);
+        home(root);
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    @Override
+    public void stop() { if (this.connection != null) this.connection.close(); }
+
+    public static void main(String[] args) { launch(args); }
 }

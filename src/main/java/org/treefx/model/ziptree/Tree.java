@@ -69,6 +69,4 @@ public class Tree<a> implements ZipTree<a> {
         this.node.setDown(new Maybe.Just<>(newNode));
         this.node = newNode;
     }
-
-    public void show() { this.node.show(); }
 }

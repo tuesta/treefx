@@ -256,7 +256,7 @@ public class ConnectionDB {
                         String childImgURL = rs.getString("child_imgURL");
                         String childPositionRAW = rs.getString("child_position");
 
-                        NodeInfo newChild = new NodeInfo(childId, childName, childImgURL, toPoint2D(childPositionRAW), new LinkedList<>());
+                        NodeInfo newChild = new NodeInfo(childId, childName, childImgURL, toPoint2D(childPositionRAW), getChildrenMoves(childId));
                         zipTree.insertChild(newChild);
                     }
                 } catch (SQLException e) { System.err.println(e); }
@@ -277,6 +277,15 @@ public class ConnectionDB {
     public ZipTreeStrict<NodeInfo> getZipTree(int id) {
         ZipTreeStrict<NodeInfo> zipTree = new ZipTreeStrict<>(this.getNodeInfo(id));
         return this.getZipTreeGO(zipTree, id);
+    }
+
+    public void close() {
+        switch (mconnection) {
+            case Maybe.Nothing() -> System.out.println("Conexion no establecida");
+            case Maybe.Just(Connection connection) -> {
+                try { connection.close(); } catch (SQLException e) { System.err.println(e); }
+            }
+        }
     }
 
     public ConnectionDB(String host, String port, String user, String pass, String bd) {
