@@ -8,7 +8,7 @@
 </h1>
 
 <h4 align="center"></h4>
-![treefx-tutorial](https://github.com/tuesta/treefx/blob/main/assets/videos/treefx-tutorial.gif)
+![treefx-tutorial](https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/videos/treefx-tutorial.gif)
 
 ## Como Usar
 
