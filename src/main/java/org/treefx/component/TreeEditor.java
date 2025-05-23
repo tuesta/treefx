@@ -9,10 +9,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import org.treefx.model.ConnectionDB;
+import org.treefx.model.MovementInSpace;
 import org.treefx.model.NodeInfo;
 import org.treefx.model.ziptree.TreeCtxStrict;
 import org.treefx.model.ziptree.ZipTreeStrict;
 import org.treefx.utils.adt.Maybe;
+import org.treefx.utils.adt.Movement;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -28,6 +30,7 @@ public class TreeEditor extends AnchorPane {
     private final ZipTreeStrict<NodeInfo> zipTree;
     private NodeCtx nodeCtx;
     private Node currentNode;
+    private Maybe<Node> mCoCurrentNode;
 
     private void loadFxml() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TreeEditor.fxml"));
@@ -40,6 +43,7 @@ public class TreeEditor extends AnchorPane {
     public TreeEditor(Consumer<Boolean> toHomeOrNav, ConnectionDB connection, ZipTreeStrict<NodeInfo> zipTree) {
         this.toHomeOrNav = toHomeOrNav;
         this.connection = connection;
+        this.mCoCurrentNode = new Maybe.Nothing<>();
         zipTree.toRoot();
         this.zipTree = zipTree;
         loadFxml();
@@ -62,15 +66,17 @@ public class TreeEditor extends AnchorPane {
 
             if (mfather.isNothing()) {this.currentNode = newNode;}
 
-            Platform.runLater(newNode::handleLine);
+            // sin Platform.runLater
+            newNode.handleLine();
 
             return newNode;
         });
 
-        Platform.runLater(this::layout);
+        // Reload-layout
+        this.layout();
 
         this.currentNode.setFocus();
-        this.nodeCtx = new NodeCtx(this.toHomeOrNav, this.connection, this.currentNode);
+        this.nodeCtx = new NodeCtx(this.toHomeOrNav, this, this.connection, this.currentNode);
         this.container.getItems().add(this.nodeCtx);
     }
 
@@ -91,6 +97,19 @@ public class TreeEditor extends AnchorPane {
         this.nodeCtx.setNode(this.currentNode);
     }
 
+    public boolean handleInsertButton(Point2D pos) {
+        switch (mCoCurrentNode) {
+            case Maybe.Nothing() -> { return false; }
+            case Maybe.Just(Node coCurrentNode) -> {
+                LinkedList<Movement> moves = this.zipTree.getRelativePosition(coCurrentNode.getNodeCtx());
+                MovementInSpace movementInSpace = new MovementInSpace(pos, moves);
+                connection.insertMovementInSpace(currentNode.getNodeCtx().getCurrent().getCurrent().fst().getId(), movementInSpace);
+                this.zipTree.extract().addPos(movementInSpace);
+                return true;
+            }
+        }
+    }
+
     public void changeFocus(Node node) {
         this.zipTree.setCtx(node.getNodeCtx());
 
@@ -98,6 +117,17 @@ public class TreeEditor extends AnchorPane {
         node.setFocus();
         this.currentNode = node;
         this.nodeCtx.setNode(this.currentNode);
+    }
+
+    public void changeCoFocus(Node node) {
+        if (node == this.currentNode) return;
+        switch (this.mCoCurrentNode) {
+            case Maybe.Nothing() -> {}
+            case Maybe.Just(Node coCurrentNode) -> coCurrentNode.removeFocus();
+        }
+
+        this.mCoCurrentNode = new Maybe.Just<>(node);
+        node.setCoFocus();
     }
 
     public void dragDetection(Node node) {

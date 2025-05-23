@@ -2,6 +2,8 @@ package org.treefx.model;
 
 import javafx.geometry.Point2D;
 import org.treefx.model.ziptree.TreeCtxStrict;
+import org.treefx.utils.adt.Maybe;
+import org.treefx.utils.adt.Movement;
 import org.treefx.utils.adt.T;
 
 import java.util.LinkedList;
@@ -11,21 +13,14 @@ public class NodeInfo {
     private String name;
     private String imgURL;
     private Point2D pos;
-    private LinkedList<T<Point2D, TreeCtxStrict<NodeInfo>>> children;
+    private LinkedList<MovementInSpace> movements;
 
-    public NodeInfo(int id, String name, String imgURL, Point2D pos, LinkedList<T<Point2D, TreeCtxStrict<NodeInfo>>> children) {
+    public NodeInfo(int id, String name, String imgURL, Point2D pos, LinkedList<MovementInSpace> movements) {
         this.id = id;
         this.name = name;
         this.imgURL = imgURL;
         this.pos = pos;
-        this.children = children;
-    }
-
-    public NodeInfo(String name, String imgURL, Point2D pos, LinkedList<T<Point2D, TreeCtxStrict<NodeInfo>>> children) {
-        this.name = name;
-        this.imgURL = imgURL;
-        this.pos = pos;
-        this.children = children;
+        this.movements = movements;
     }
 
     public int getId() { return id; }
@@ -42,7 +37,9 @@ public class NodeInfo {
 
     public void setPos(Point2D pos) { this.pos = pos; }
 
-    public LinkedList<T<Point2D, TreeCtxStrict<NodeInfo>>> getChildren() { return children; }
+    public void addPos(MovementInSpace movementInSpace) { this.movements.add(movementInSpace); }
 
-    public void setChildren(LinkedList<T<Point2D, TreeCtxStrict<NodeInfo>>> children) { this.children = children; }
+    public LinkedList<MovementInSpace> getChildren() { return movements; }
+
+    public void setChildren(LinkedList<MovementInSpace> children) { this.movements = children; }
 }

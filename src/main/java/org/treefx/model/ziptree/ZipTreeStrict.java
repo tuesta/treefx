@@ -27,7 +27,7 @@ public class ZipTreeStrict<a> {
 
     public void setCtx(TreeCtxStrict<a> ctx) { this.ctx = ctx; }
 
-    public a extract() { return this.ctx.getBrothers().extract().fromJust().fst(); }
+    public a extract() { return this.ctx.getValue(); }
     public TreeCtxStrict<a> getCtx() { return this.ctx; }
 
     public boolean toFather() {
@@ -108,14 +108,19 @@ public class ZipTreeStrict<a> {
             ancestorsTarget.push(ancestorsTarget.peek().getFather().fromJust());
         }
 
+
         TreeCtxStrict<a> commonFather = root;
-        while (ancestorsCurrent.peek() == ancestorsTarget.peek()) {
+        while (!ancestorsCurrent.isEmpty() && !ancestorsTarget.isEmpty() &&
+               ancestorsCurrent.peek() == ancestorsTarget.peek()) {
             commonFather = ancestorsCurrent.peek();
             ancestorsCurrent.pop();
             ancestorsTarget.pop();
         }
+        System.out.println(ancestorsCurrent);
+        System.out.println(ancestorsTarget);
         ancestorsCurrent.push(commonFather);
         ancestorsTarget.push(commonFather);
+        System.out.println(ancestorsCurrent);
 
         LinkedList<Movement> movements = new LinkedList<>();
 

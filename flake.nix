@@ -17,6 +17,7 @@
             xorg.libXxf86vm
 
             scenebuilder
+            mysql-workbench
           ];
           shellHook = ''
             export PATH="$PATH:${pkgs.maven}/bin"

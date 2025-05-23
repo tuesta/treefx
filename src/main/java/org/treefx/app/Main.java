@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -20,7 +21,7 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 
 public class Main extends Application {
-    public static ListView<T<Integer, String>> createList(Consumer<Integer> toEditor, LinkedList<T<Integer, String>> xs) {
+    public static ListView<T<Integer, String>> createList(ConnectionDB connection, Consumer<Integer> toEditor, LinkedList<T<Integer, String>> xs) {
         var listView = new ListView<T<Integer, String>>();
         listView.setFixedCellSize(40);
         listView.setFocusTraversable(false);
@@ -50,7 +51,13 @@ public class Main extends Application {
             var selectedItem = listView.getSelectionModel().getSelectedItem();
 
             if (selectedItem != null) {
-                toEditor.accept(selectedItem.fst());
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    connection.removeRoot(selectedItem.fst());
+                    listView.getItems().remove(selectedItem);
+                    listView.setPrefHeight((xs.size() - 1) * 40 + 2);
+                } else {
+                    toEditor.accept(selectedItem.fst());
+                }
             }
         });
         
@@ -88,7 +95,7 @@ public class Main extends Application {
     public static void home(ConnectionDB connection, BorderPane root) {
         LinkedList<T<Integer, String>> xs = connection.getAllRoots();
 
-        var listView = createList(id -> {
+        var listView = createList(connection, id -> {
             var zipTree = connection.getZipTree(id);
             startTree(zipTree, connection, root);
         }, xs);
@@ -131,7 +138,7 @@ public class Main extends Application {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        ConnectionDB connectionDB = new ConnectionDB("sql7.freesqldatabase.com", "3306", "sql7776456", "KnGGaAQpPR", "sql7776456");
+        ConnectionDB connectionDB = new ConnectionDB("localhost", "3306", "root", "MyNewPass", "treefx");
         home(connectionDB, root);
     }
 

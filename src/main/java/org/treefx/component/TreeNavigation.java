@@ -9,10 +9,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import org.treefx.model.MovementInSpace;
 import org.treefx.model.NodeInfo;
+import org.treefx.model.ziptree.TreeCtxStrict;
 import org.treefx.model.ziptree.ZipTreeStrict;
+import org.treefx.utils.adt.Movement;
+import org.treefx.utils.adt.T;
+import javafx.geometry.Point2D;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 public class TreeNavigation extends VBox {
     private final Runnable toEditor;
@@ -22,6 +28,8 @@ public class TreeNavigation extends VBox {
     @FXML private ImageView node_img;
     @FXML private Label node_name;
     @FXML private Button node_editor;
+    private LinkedList<T<Point2D, Button>> btns;
+
     private Button upButton;
     private Button downButton;
     private Button leftButton;
@@ -32,6 +40,7 @@ public class TreeNavigation extends VBox {
     public TreeNavigation(Runnable toEditor, ZipTreeStrict<NodeInfo> zipTree) {
         this.toEditor = toEditor;
         this.zipTree = zipTree;
+        this.btns = new LinkedList<>();
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TreeNavigation.fxml"));
         fxmlLoader.setRoot(this);
@@ -39,7 +48,6 @@ public class TreeNavigation extends VBox {
 
         try { fxmlLoader.load(); } catch (IOException e) { throw new RuntimeException(e); }
     }
-
 
     @FXML
     public void initialize() {
@@ -105,22 +113,72 @@ public class TreeNavigation extends VBox {
     }
 
     public void renderCurrentNode() {
+        for (T<Point2D, Button> button : btns) buttons_space.getChildren().remove(button.snd());
+
         String imageLoad = getClass().getResource("image-edit.png").toExternalForm();
-        String nodeURL = zipTree.getCtx().getValue().getImgURL();
+        String nodeURL = zipTree.extract().getImgURL();
         String url = nodeURL.isEmpty() ? imageLoad : nodeURL;
 
         var mImage = new Image(url);
         if (mImage.isError()) mImage = new Image(imageLoad);
 
         node_img.setImage(mImage);
-
+        LinkedList<MovementInSpace> toChildrens = this.zipTree.extract().getChildren();
+        LinkedList<T<Point2D, Button>> toChildrensBtn = new LinkedList<>();
+        this.btns = toChildrensBtn;
         resizeImage(container.getWidth(), container.getHeight() - 40);
-        container.layoutBoundsProperty().addListener((observable, oldValue, newValue) ->
-            resizeImage(newValue.getWidth(), newValue.getHeight() - 40)
-        );
 
-        node_name.setText(zipTree.getCtx().getValue().getName());
+        for (var toChild : toChildrens) {
+            double x = toChild.getPos().getX() * node_img.getBoundsInParent().getWidth();
+            double y = toChild.getPos().getY() * node_img.getBoundsInParent().getHeight();
+            Point2D coordsInParent = node_img.localToParent(new Point2D(x, y));
+
+            var toButton = this.createCircularButtonAt(0, 0);
+            toButton.setLayoutX(coordsInParent.getX());
+            toButton.setLayoutY(coordsInParent.getY());
+
+            toButton.setOnAction(event -> this.moveTo(toChild.getMovements()));
+            this.buttons_space.getChildren().add(toButton);
+            toChildrensBtn.add(new T.MkT<>(toChild.getPos(), toButton));
+        }
+
+        container.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
+            resizeImage(newValue.getWidth(), newValue.getHeight() - 40);
+
+            for (T<Point2D, Button> button : toChildrensBtn) {
+                node_img.getBoundsInParent().getWidth();
+                double x = button.fst().getX() * node_img.getBoundsInParent().getWidth();
+                double y = button.fst().getY() * node_img.getBoundsInParent().getHeight();
+
+                Point2D coordsInParent = node_img.localToParent(new Point2D(x, y));
+                button.snd().setLayoutX(coordsInParent.getX());
+                button.snd().setLayoutY(coordsInParent.getY());
+            }
+        });
+
+        node_name.setText(zipTree.extract().getName());
     }
+
+    private Button createCircularButtonAt(double x, double y) {
+        Button button = new Button();
+
+        button.setStyle("""
+                -fx-background-color: rgba(0, 0, 0, 0.3);
+                -fx-text-fill: white;
+                -fx-background-radius: 30px;
+                -fx-min-width: 60px;
+                -fx-min-height: 60px;
+                -fx-max-width: 60px;
+                -fx-max-height: 60px;
+                """);
+
+        double radius = 30;
+        button.setLayoutX(x - radius);
+        button.setLayoutY(y - radius);
+
+        return button;
+    }
+
 
     public void resizeImage(double containerWidth, double containerHeight) {
         if (containerHeight / containerWidth >= node_img.getImage().getHeight() / node_img.getImage().getWidth()) {
@@ -132,6 +190,13 @@ public class TreeNavigation extends VBox {
         }
 
         node_img.setLayoutX((containerWidth - node_img.getBoundsInParent().getWidth()) / 2);
+    }
+
+    private void moveTo(LinkedList<Movement> nodeCtx) {
+        this.zipTree.moveTo(nodeCtx);
+
+        renderCurrentNode();
+        renderMovementButtons();
     }
 
     /**

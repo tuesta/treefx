@@ -16,6 +16,8 @@ public class ZipListStrict<a> implements ZipList<a>{
     public NodeLinkList<a> getLast() { return last; }
 
     public int size() { return this.size; }
+    public int getIx() { return this.index; }
+
 
     @Override
     public void setCurrent(a a) {
@@ -134,6 +136,60 @@ public class ZipListStrict<a> implements ZipList<a>{
         if (ix != 0) this.toEnd();
         insertR(val);
         this.to(ix);
+    }
+
+    public Maybe<a> deleteCurrent() {
+        return switch (this.mNode) {
+            case Maybe.Nothing() -> new Maybe.Nothing<>();
+            case Maybe.Just(NodeLinkList<a> node) -> {
+                switch (node.getBefore()) {
+                    case Maybe.Nothing() -> {
+                        switch (node.getAfter()) {
+                            case Maybe.Nothing() -> {
+                                this.head = null;
+                                this.last = null;
+                                this.size = 0;
+                                this.index = 0;
+                                this.mNode = new Maybe.Nothing<>();
+                            }
+                            case Maybe.Just(NodeLinkList<a> nodeAfter) -> {
+                                this.head = nodeAfter;
+                                this.size--;
+                                nodeAfter.setBefore(new Maybe.Nothing<>());
+                                this.mNode = node.getAfter();
+                            }
+                        }
+                    }
+                    case Maybe.Just(NodeLinkList<a> nodeBefore) -> {
+                        switch (node.getAfter()) {
+                            case Maybe.Nothing() -> {
+                                this.last = nodeBefore;
+                                this.size--;
+                                this.index--;
+                                nodeBefore.setAfter(new Maybe.Nothing<>());
+                                this.mNode = node.getBefore();
+                            }
+                            case Maybe.Just(NodeLinkList<a> nodeAfter) -> {
+                                nodeBefore.setAfter(node.getAfter());
+                                this.size--;
+                                this.index--;
+                                this.mNode = node.getBefore();
+                            }
+                        }
+                    }
+                }
+                yield new Maybe.Just<>(node.getCurrent());
+            }
+        };
+    }
+
+    public Maybe<a> delete(int i) {
+        int ix = this.index;
+        this.to(i);
+        Maybe<a> deleted = new Maybe.Nothing<>();
+        if (this.index == i) deleted = this.deleteCurrent();
+        this.to(ix);
+        return deleted;
     }
 
     public int to(int i) {

@@ -101,12 +101,25 @@ public class Node extends VBox {
             if (e.getButton() == MouseButton.PRIMARY) {
                 editor.changeFocus(this);
             }
+            if (e.getButton() == MouseButton.MIDDLE) {
+                editor.changeCoFocus(this);
+            }
         });
     }
 
     public void setFocus() {
         String cssLayout = """
                 -fx-border-color: red;
+                -fx-border-insets: 5;
+                -fx-border-width: 3;
+                """;
+
+        this.setStyle(cssLayout);
+    }
+
+    public void setCoFocus() {
+        String cssLayout = """
+                -fx-border-color: green;
                 -fx-border-insets: 5;
                 -fx-border-width: 3;
                 """;
