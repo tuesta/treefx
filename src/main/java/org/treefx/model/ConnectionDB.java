@@ -11,9 +11,18 @@ import javafx.geometry.Point2D;
 import java.sql.*;
 import java.util.LinkedList;
 
+/**
+ * Maneja la conexión con la base de datos y proporciona métodos para interactuar con las tablas y datos.
+ */
 public class ConnectionDB {
     private Maybe<Connection> mconnection;
 
+    /**
+     * Convierte una cadena en formato SQL POINT a un objeto Point2D.
+     *
+     * @param positionRAW la representación en formato POINT (longitud, latitud) como cadena.
+     * @return un objeto Point2D correspondiente a las coordenadas del punto.
+     */
     public Point2D toPoint2D(String positionRAW) {
         // Formato: POINT(longitud latitud)
         String[] coordinates = positionRAW
@@ -25,6 +34,11 @@ public class ConnectionDB {
         return new Point2D(x, y);
     }
 
+    /**
+     * Obtiene todos los nodos raíz de la base de datos.
+     *
+     * @return una lista enlazada con las raíces, cada una representada por su ID y nombre.
+     */
     public LinkedList<T<Integer, String>> getAllRoots() {
         var roots = new LinkedList<T<Integer, String>>();
 
@@ -46,6 +60,12 @@ public class ConnectionDB {
         return roots;
     }
 
+    /**
+     * Inserta un nodo raíz en la base de datos.
+     *
+     * @param name el nombre del nodo raíz que se desea insertar.
+     * @return el ID del nodo raíz recién insertado, o -1 si ocurre un error.
+     */
     public int insertRoot(String name) {
         int id = -1;
 
@@ -69,6 +89,12 @@ public class ConnectionDB {
         return id;
     }
 
+    /**
+     * Elimina un nodo raíz de la base de datos.
+     *
+     * @param root_id el ID del nodo raíz que se desea eliminar.
+     * @return -1 si ocurre un error.
+     */
     public int removeRoot(int root_id) {
         int id = -1;
 
@@ -86,6 +112,13 @@ public class ConnectionDB {
         return id;
     }
 
+    /**
+     * Inserta un nodo hijo en la base de datos.
+     *
+     * @param position la posición del nodo hija en formato Point2D.
+     * @param parentId el ID del nodo padre.
+     * @return el ID del nodo hijo recién insertado, o -1 si ocurre un error.
+     */
     public int insertChild(Point2D position, int parentId) {
         int id = -1;
 
@@ -109,6 +142,12 @@ public class ConnectionDB {
         return id;
     }
 
+    /**
+     * Actualiza la información de la posición de un nodo en la base de datos.
+     *
+     * @param id       el ID del nodo que se desea actualizar.
+     * @param position la nueva posición del nodo en formato Point2D.
+     */
     public void updateNodeInfo(int id, Point2D position) {
         switch (mconnection) {
             case Maybe.Nothing() -> System.out.println("Conexion no establecida");
@@ -123,6 +162,13 @@ public class ConnectionDB {
         }
     }
 
+    /**
+     * Actualiza el nombre y la URL de la imagen de un nodo en la base de datos.
+     *
+     * @param id       el ID del nodo que se desea actualizar.
+     * @param name     el nuevo nombre del nodo.
+     * @param imageURL la nueva URL de la imagen del nodo.
+     */
     public void updateNodeInfo(int id, String name, String imageURL) {
         switch (mconnection) {
             case Maybe.Nothing() -> System.out.println("Conexion no establecida");
@@ -144,6 +190,12 @@ public class ConnectionDB {
         }
     }
 
+    /**
+     * Obtiene la información de un nodo a partir de su ID.
+     *
+     * @param id el ID del nodo cuyo información se desea obtener.
+     * @return un objeto NodeInfo conteniendo los datos del nodo, o null si no se encuentra.
+     */
     public NodeInfo getNodeInfo(int id) {
         NodeInfo nodeInfo = null;
 
@@ -173,6 +225,12 @@ public class ConnectionDB {
         return nodeInfo;
     }
 
+    /**
+     * Inserta un conjunto de movimientos espaciales para un nodo específico.
+     *
+     * @param node_id         el ID del nodo al cual se le agregan movimientos espaciales.
+     * @param movementInSpace un objeto que contiene los movimientos espaciales y la posición.
+     */
     public void insertMovementInSpace(int node_id, MovementInSpace movementInSpace) {
         var movements = movementInSpace.getMovements();
         var pos = movementInSpace.getPos();
@@ -199,6 +257,12 @@ public class ConnectionDB {
         }
     }
 
+    /**
+     * Obtiene los movimientos espaciales asociados a un nodo hijo específico.
+     *
+     * @param id el ID del nodo hijo para el cual se obtienen los movimientos.
+     * @return una lista enlazada de los movimientos espaciales.
+     */
     public LinkedList<MovementInSpace> getChildrenMoves(int id) {
         LinkedList<MovementInSpace> movementsInSpace = new LinkedList<>();
 
@@ -232,6 +296,13 @@ public class ConnectionDB {
         return movementsInSpace;
     }
 
+    /**
+     * Rellena un ZipTree con información jerárquica de un nodo y sus hijos.
+     *
+     * @param zipTree el árbol ZipTree que se completará con nodos.
+     * @param id      el ID del nodo raíz del árbol jerárquico.
+     * @return el árbol ZipTree completamente rellenado.
+     */
     public ZipTreeStrict<NodeInfo> getZipTreeGO(ZipTreeStrict<NodeInfo> zipTree, int id) {
         switch (mconnection) {
             case Maybe.Nothing() -> System.out.println("Conexion no establecida");
@@ -274,11 +345,20 @@ public class ConnectionDB {
         return zipTree;
     }
 
+    /**
+     * Obtiene un árbol jerárquico ZipTree a partir de un nodo raíz específico.
+     *
+     * @param id el ID del nodo raíz del árbol ZipTree.
+     * @return el árbol ZipTree generado.
+     */
     public ZipTreeStrict<NodeInfo> getZipTree(int id) {
         ZipTreeStrict<NodeInfo> zipTree = new ZipTreeStrict<>(this.getNodeInfo(id));
         return this.getZipTreeGO(zipTree, id);
     }
 
+    /**
+     * Cierra la conexión con la base de datos si está establecida.
+     */
     public void close() {
         switch (mconnection) {
             case Maybe.Nothing() -> System.out.println("Conexion no establecida");
@@ -288,6 +368,15 @@ public class ConnectionDB {
         }
     }
 
+    /**
+     * Constructor que inicializa la conexión con la base de datos dado un conjunto de parámetros.
+     *
+     * @param host el host del servidor de base de datos.
+     * @param port el puerto del servidor de base de datos.
+     * @param user el nombre de usuario para la conexión.
+     * @param pass la contraseña para la conexión.
+     * @param bd   el nombre de la base de datos.
+     */
     public ConnectionDB(String host, String port, String user, String pass, String bd) {
         String url = "jdbc:mysql://" + host + ":" + port + "/" + bd + "?useSSL=false&serverTimezone=UTC";
         try {

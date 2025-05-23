@@ -8,11 +8,29 @@ import org.treefx.utils.adt.T;
 
 import java.util.function.Function;
 
+/**
+ * Representa un árbol zipper (ZipTree) perezoso.
+ * <p>
+ * El "ZipTreeLazy" utiliza un árbol de memo (copia del árbol en memoria),
+ * junto con un contexto que puede regenerar nodos en el momento,
+ * utilizando una función generadora basada en un estado.
+ *
+ * @param <b> Tipo del estado usado para generar nodos del árbol.
+ * @param <a> Tipo de los valores almacenados en los nodos del árbol.
+ */
 public class ZipTreeLazy<b, a> implements ZipTree<a> {
     private final Tree<a> memo;
     private TreeCtxLazy<b> ctx;
     private final Function<b, T<a, ZipList<b>>> generate;
 
+    /**
+     * Construye un árbol zipper perezoso basado en el estado inicial,
+     * una lista zipper de contexto y una función generadora.
+     *
+     * @param ctx      Una lista zipper que actúa como base para la generación del árbol.
+     * @param state    El estado inicial usado para generar el primer nodo del árbol.
+     * @param generate Función generadora de nodos del árbol con base en el estado.
+     */
     public ZipTreeLazy(ZipList<b> ctx, b state, Function<b, T<a, ZipList<b>>> generate) {
         T<a, ZipList<b>> node = generate.apply(state);
         this.memo = new Tree<>(new NodeLinkTree<>(node.fst(), new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>(), new Maybe.Nothing<>()));
@@ -20,9 +38,21 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
         this.generate = generate;
     }
 
+    /**
+     * Extrae el valor del nodo actual en el memo.
+     *
+     * @return El valor del nodo actual.
+     */
     @Override
-    public a extract() { return this.memo.extract(); }
+    public a extract() {
+        return this.memo.extract();
+    }
 
+    /**
+     * Se mueve al nodo anterior dentro del nivel actual del árbol.
+     *
+     * @return {@code true} si se movió exitosamente, de lo contrario {@code false}.
+     */
     @Override
     public boolean prev() {
         if (this.memo.prev()) {
@@ -35,6 +65,12 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
         } else return false;
     }
 
+    /**
+     * Se mueve al siguiente nodo hermano en el nivel actual.
+     * Si el nodo aún no existe, lo genera usando la función generadora asociada.
+     *
+     * @return {@code true} si se movió exitosamente, de lo contrario {@code false}.
+     */
     @Override
     public boolean next() {
         if (this.memo.next()) {
@@ -60,6 +96,11 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
         }
     }
 
+    /**
+     * Se mueve al nodo padre del nodo actual si existe.
+     *
+     * @return {@code true} si se movió exitosamente, de lo contrario {@code false}.
+     */
     @Override
     public boolean top() {
         if (this.memo.top()) {
@@ -68,6 +109,12 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
         } else return false;
     }
 
+    /**
+     * Se mueve al nodo hijo del nodo actual.
+     * Si el nodo hijo aún no existe, lo genera usando la función generadora asociada.
+     *
+     * @return {@code true} si se movió exitosamente, de lo contrario {@code false}.
+     */
     @Override
     public boolean down() {
         if (this.memo.down()) {
@@ -95,6 +142,4 @@ public class ZipTreeLazy<b, a> implements ZipTree<a> {
             }
         }
     }
-
-    public void drawMemo() { System.out.println(this.memo.toString()); }
 }

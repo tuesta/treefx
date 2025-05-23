@@ -17,6 +17,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
+/**
+ * Clase que gestiona el comportamiento y visualización de un nodo en el editor de árboles.
+ * <p>
+ * NodeCtx es una clase que representa la interfaz gráfica de un nodo, permitiendo establecer su información,
+ * cargar su representación visual, y registrar movimientos para incorporar botones interactivos.
+ * También gestiona las acciones relacionadas con la navegación y retorno a la vista principal.
+ * </p>
+ */
 public class NodeCtx extends VBox {
     private final Consumer<Boolean> toHomeOrNav;
     private final TreeEditor editor;
@@ -32,11 +40,22 @@ public class NodeCtx extends VBox {
     private LinkedList<Button> btns;
     private Node node;
 
+    /**
+     * Establece el nodo que será gestionado por esta instancia.
+     * <p>
+     * Llama al método {@link #loadNodeInfo()} para cargar y renderizar la información del nodo proporcionado.
+     * </p>
+     *
+     * @param node El nodo a ser gestionado y visualizado.
+     */
     public void setNode(Node node) {
         this.node = node;
         this.loadNodeInfo();
     }
 
+    /**
+     * Actualiza la información del nodo asociado, como el nombre e imagen, tanto en la base de datos como en la interfaz gráfica.
+     */
     private void onNodeUpdate() {
         String name = this.node_name.getText();
         String imgURL = this.node_imgURL.getText();
@@ -49,6 +68,14 @@ public class NodeCtx extends VBox {
         this.loadNodeInfo();
     }
 
+    /**
+     * Constructor para crear una instancia de la clase NodeCtx.
+     *
+     * @param toHomeOrNav Un consumidor que gestiona la navegación entre la vista principal y la vista de navegación.
+     * @param editor      El editor de árboles asociado a esta instancia.
+     * @param connection  La conexión a la base de datos para actualizar información de nodos.
+     * @param node        El nodo que será gestionado por esta instancia de la clase.
+     */
     public NodeCtx(Consumer<Boolean> toHomeOrNav, TreeEditor editor, ConnectionDB connection, Node node) {
         this.toHomeOrNav = toHomeOrNav;
         this.editor = editor;
@@ -67,6 +94,10 @@ public class NodeCtx extends VBox {
         }
     }
 
+    /**
+     * Inicializa los componentes y registra los manejadores de eventos para la interfaz gráfica del nodo.
+     * Este método se ejecuta automáticamente después de cargar el archivo FXML.
+     */
     @FXML
     public void initialize() {
         loadNodeInfo();
@@ -91,6 +122,13 @@ public class NodeCtx extends VBox {
         });
     }
 
+    /**
+     * Renderiza un botón en la posición calculada a partir de un movimiento en el espacio.
+     *
+     * @param dim             Las dimensiones (ancho y alto) del contenedor del nodo.
+     * @param movementInSpace La información de posición del movimiento que determinará dónde se colocará el botón.
+     * @return El botón creado y añadido al contenedor de la imagen del nodo.
+     */
     private Button renderButtonMovements(Point2D dim, MovementInSpace movementInSpace) {
         double x = movementInSpace.getPos().getX() * dim.getX();
         double y = movementInSpace.getPos().getY() * dim.getY();
@@ -100,6 +138,13 @@ public class NodeCtx extends VBox {
         return smallButton;
     }
 
+    /**
+     * Carga la información del nodo en la interfaz gráfica.
+     * <p>
+     * Este método actualiza el nombre del nodo, su imagen, y coloca botones representativos para los movimientos
+     * asociados al nodo en el espacio proporcionado.
+     * </p>
+     */
     public void loadNodeInfo() {
         for (Button btnInSpace : this.btns) {
             System.out.println();

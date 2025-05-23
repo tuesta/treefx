@@ -1,20 +1,30 @@
 package org.treefx.model;
 
 import javafx.geometry.Point2D;
-import org.treefx.model.ziptree.TreeCtxStrict;
-import org.treefx.utils.adt.Maybe;
-import org.treefx.utils.adt.Movement;
-import org.treefx.utils.adt.T;
 
 import java.util.LinkedList;
 
+/**
+ * Clase que representa información sobre un nodo en un árbol.
+ * Contiene datos relacionados como su identificador, nombre, URL de imagen,
+ * posición y movimientos asociados.
+ */
 public class NodeInfo {
-    private int id;
+    private final int id;
     private String name;
     private String imgURL;
     private Point2D pos;
     private LinkedList<MovementInSpace> movements;
 
+    /**
+     * Constructor para inicializar un objeto NodeInfo con todos sus atributos.
+     *
+     * @param id        Identificador único del nodo.
+     * @param name      Nombre descriptivo del nodo.
+     * @param imgURL    URL de una imagen asociada al nodo.
+     * @param pos       Posición (coordenadas) del nodo.
+     * @param movements Lista de movimientos asociados al nodo en el espacio.
+     */
     public NodeInfo(int id, String name, String imgURL, Point2D pos, LinkedList<MovementInSpace> movements) {
         this.id = id;
         this.name = name;
@@ -23,23 +33,93 @@ public class NodeInfo {
         this.movements = movements;
     }
 
-    public int getId() { return id; }
+    /**
+     * Obtiene el identificador único del nodo.
+     *
+     * @return El identificador del nodo.
+     */
+    public int getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
+    /**
+     * Obtiene el nombre descriptivo del nodo.
+     *
+     * @return El nombre del nodo.
+     */
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name) { this.name = name; }
+    /**
+     * Establece un nuevo nombre para el nodo.
+     *
+     * @param name El nuevo nombre del nodo.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getImgURL() { return imgURL; }
+    /**
+     * Obtiene la URL de la imagen asociada al nodo.
+     *
+     * @return La URL de la imagen del nodo.
+     */
+    public String getImgURL() {
+        return imgURL;
+    }
 
-    public void setImgURL(String imgURL) { this.imgURL = imgURL; }
+    /**
+     * Establece una nueva URL de imagen para el nodo.
+     *
+     * @param imgURL La nueva URL de imagen del nodo.
+     */
+    public void setImgURL(String imgURL) {
+        this.imgURL = imgURL;
+    }
 
-    public Point2D getPos() { return pos; }
+    /**
+     * Obtiene la posición actual (coordenadas) del nodo.
+     *
+     * @return La posición del nodo como un objeto Point2D.
+     */
+    public Point2D getPos() {
+        return pos;
+    }
 
-    public void setPos(Point2D pos) { this.pos = pos; }
+    /**
+     * Establece una nueva posición (coordenadas) para el nodo.
+     *
+     * @param pos La nueva posición del nodo representada por un Point2D.
+     */
+    public void setPos(Point2D pos) {
+        this.pos = pos;
+    }
 
-    public void addPos(MovementInSpace movementInSpace) { this.movements.add(movementInSpace); }
+    /**
+     * Agrega un nuevo movimiento a la lista de movimientos del nodo.
+     *
+     * @param movementInSpace El movimiento que se añadirá.
+     */
+    public void addPos(MovementInSpace movementInSpace) {
+        this.movements.add(movementInSpace);
+    }
 
-    public LinkedList<MovementInSpace> getChildren() { return movements; }
+    /**
+     * Obtiene la lista de movimientos asociados al nodo.
+     *
+     * @return Una lista enlazada con los movimientos del nodo.
+     */
+    public LinkedList<MovementInSpace> getChildren() {
+        return movements;
+    }
 
-    public void setChildren(LinkedList<MovementInSpace> children) { this.movements = children; }
+    /**
+     * Establece una nueva lista de movimientos para el nodo.
+     *
+     * @param children La nueva lista de movimientos del nodo.
+     */
+    public void setChildren(LinkedList<MovementInSpace> children) {
+        this.movements = children;
+    }
 }

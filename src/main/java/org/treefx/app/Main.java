@@ -20,9 +20,27 @@ import org.treefx.utils.adt.T;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
+/**
+ * Clase principal de la aplicación TreeFX.
+ * Encargada de inicializar y mostrar la interfaz gráfica principal utilizando JavaFX.
+ * Construye un árbol de nodos de ejemplo que es visualizado por el componente TreeNavigation.
+ */
 public class Main extends Application {
+    /**
+     * Representa la conexión con la base de datos utilizada por la aplicación.
+     * Proporciona métodos para interactuar con los nodos del árbol almacenados en la base de datos.
+     */
     private ConnectionDB connection;
 
+    /**
+     * Crea una lista interactiva que muestra elementos con un identificador y un nombre.
+     * Cada elemento puede ser seleccionado o eliminado, manejando los eventos
+     * asociados mediante funciones proporcionadas.
+     *
+     * @param toEditor Una función que toma el identificador de un elemento al hacer clic sobre él.
+     * @param xs       Una lista de elementos que la lista visualiza, donde cada elemento es un par de identificador y nombre.
+     * @return Un componente de tipo {@code ListView} que contiene los elementos proporcionados.
+     */
     public ListView<T<Integer, String>> createList(Consumer<Integer> toEditor, LinkedList<T<Integer, String>> xs) {
         var listView = new ListView<T<Integer, String>>();
         listView.setFixedCellSize(40);
@@ -66,6 +84,16 @@ public class Main extends Application {
         return listView;
     }
 
+    
+    /**
+     * Crea un componente de interfaz gráfica que permite al usuario añadir un nuevo árbol.
+     * El componente incluye un campo de texto donde el usuario puede introducir
+     * el nombre del árbol y un botón para confirmar la creación. Si el campo de texto
+     * está vacío, se muestra un mensaje de advertencia solicitando un nombre válido.
+     *
+     * @param toEditor Una función que procesa el nombre ingresado para crear y mostrar el nuevo árbol.
+     * @return Un contenedor de tipo {@code HBox} que incluye el campo de entrada y el botón para agregar el nuevo árbol.
+     */
     public HBox createNewTree(Consumer<String> toEditor) {
         var inputField = new javafx.scene.control.TextField();
         HBox.setHgrow(inputField, javafx.scene.layout.Priority.ALWAYS);
@@ -94,6 +122,14 @@ public class Main extends Application {
         return container;
     }
 
+    /**
+     * Muestra la vista inicial de la aplicación, donde los usuarios pueden visualizar
+     * una lista de árboles existentes y realizar acciones como crear o seleccionar un árbol.
+     *
+     * @param root El elemento {@code BorderPane} principal donde se carga la vista inicial.
+     *             Este contenedor incluye una lista de árboles existentes y un formulario
+     *             para la creación de nuevos árboles.
+     */
     public void home(BorderPane root) {
         LinkedList<T<Integer, String>> xs = this.connection.getAllRoots();
 
@@ -114,6 +150,13 @@ public class Main extends Application {
         root.setCenter(container);
     }
 
+    /**
+     * Configura y muestra la vista del árbol para un {@code ZipTreeStrict<NodeInfo>} específico,
+     * Los usuarios pueden navegar por el árbol o regresar a la vista inicial.
+     *
+     * @param zipTree Una instancia de {@code ZipTreeStrict<NodeInfo>} que representa la estructura jerárquica del árbol.
+     * @param root    El elemento {@code BorderPane} principal sobre el cual se cargarán las vistas del árbol o de home.
+     */
     public void startTree(ZipTreeStrict<NodeInfo> zipTree, BorderPane root) {
         Consumer<Boolean> toHomeOrNav = new Consumer<>() {
             @Override
@@ -130,9 +173,16 @@ public class Main extends Application {
         root.setCenter(new TreeEditor(toHomeOrNav, connection, zipTree));
     }
 
+    /**
+     * Punto principal de entrada para aplicaciones JavaFX.
+     * Configura y muestra la ventana principal de la aplicación,
+     * además de construir un árbol jerárquico de nodos de ejemplo al iniciar.
+     *
+     * @param primaryStage El escenario principal proporcionado por el sistema JavaFX.
+     */
     @Override
     public void start(Stage primaryStage) {
-        this.connection = new ConnectionDB("localhost", "3306", "root", "MyNewPass", "treefx");
+        this.connection = new ConnectionDB("localhost", "3306", "root", "", "treefx");
 
         BorderPane root = new BorderPane();
         try {
@@ -146,6 +196,10 @@ public class Main extends Application {
         home(root);
     }
 
+    /**
+     * Método llamado automáticamente al cerrar la aplicación JavaFX.
+     * Se utiliza para liberar recursos, como cerrar conexiones a la base de datos.
+     */
     @Override
     public void stop() { if (this.connection != null) this.connection.close(); }
 

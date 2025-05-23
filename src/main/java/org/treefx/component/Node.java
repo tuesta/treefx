@@ -18,17 +18,51 @@ import org.treefx.utils.adt.Maybe;
 
 import java.io.IOException;
 
+/**
+ * Representa un nodo en una interfaz gráfica interactiva.
+ * <p>
+ * Esta clase extiende de {@link VBox} y utiliza componentes de JavaFX para mostrar
+ * información de un nodo como su imagen, nombre, y relaciones con otros nodos. También maneja
+ * eventos de interacción del usuario, como arrastrar, hacer clic y actualizar las posiciones de los nodos en la interfaz.
+ * </p>
+ */
 public class Node extends VBox {
     @FXML private VBox node_container;
     @FXML private ImageView node_img;
     @FXML private Label node_name;
+    /**
+     * Referencia opcional al nodo padre de este nodo.
+     */
     private final Maybe<Node> mNodeFather;
+    /**
+     * Línea que representa la conexión visual entre este nodo y su nodo padre, si existe.
+     */
     private Maybe<Line> mline;
+    /**
+     * Contexto del árbol que contiene información asociada a este nodo.
+     */
     private final TreeCtxStrict<NodeInfo> nodeCtx;
+    /**
+     * Referencia al editor asociado que administra las interacciones con este nodo.
+     */
     private final TreeEditor editor;
 
-    public TreeCtxStrict<NodeInfo> getNodeCtx() { return nodeCtx; }
+    /**
+     * Obtiene el contexto del árbol asociado con este nodo.
+     *
+     * @return El contexto del árbol que contiene la información de este nodo.
+     */
+    public TreeCtxStrict<NodeInfo> getNodeCtx() {
+        return nodeCtx;
+    }
 
+    /**
+     * Constructor de la clase Node.
+     *
+     * @param mNodeFather Una referencia opcional al nodo padre, si existe.
+     * @param nodeCtx     El contexto del árbol que contiene los datos asociados al nodo.
+     * @param editor      El editor que administra la interacción con este nodo.
+     */
     public Node(Maybe<Node> mNodeFather, TreeCtxStrict<NodeInfo> nodeCtx, TreeEditor editor) {
         this.mNodeFather = mNodeFather;
         this.mline = new Maybe.Nothing<>();
@@ -46,6 +80,9 @@ public class Node extends VBox {
         }
     }
 
+    /**
+     * Configura la lógica para manejar la línea que conecta este nodo con su padre.
+     */
     public void handleLine() {
         switch (this.mNodeFather) {
             case Maybe.Nothing() -> {}
@@ -62,6 +99,12 @@ public class Node extends VBox {
         }
     }
 
+    /**
+     * Actualiza la posición de la línea de conexión entre este nodo y su nodo padre.
+     *
+     * @param father Las coordenadas del nodo padre.
+     * @param child  Las coordenadas del nodo hijo.
+     */
     public void updateLine(Point2D father, Point2D child) {
         switch (mline) {
             case Maybe.Nothing() -> {
@@ -108,6 +151,9 @@ public class Node extends VBox {
         });
     }
 
+    /**
+     * Establece el enfoque en este nodo, cambiando su estilo visual para indicar que está seleccionado.
+     */
     public void setFocus() {
         String cssLayout = """
                 -fx-border-color: red;
@@ -118,6 +164,9 @@ public class Node extends VBox {
         this.setStyle(cssLayout);
     }
 
+    /**
+     * Establece el co-enfoque en este nodo, cambiando su estilo visual para indicar que está co-seleccionado.
+     */
     public void setCoFocus() {
         String cssLayout = """
                 -fx-border-color: green;
@@ -128,6 +177,9 @@ public class Node extends VBox {
         this.setStyle(cssLayout);
     }
 
+    /**
+     * Elimina el enfoque de este nodo, restaurando su estilo visual al estado predeterminado.
+     */
     public void removeFocus() {
         String cssLayout = """
                 -fx-border-color: white;
@@ -137,6 +189,11 @@ public class Node extends VBox {
         this.setStyle(cssLayout);
     }
 
+    /**
+     * Renderiza el nodo en la interfaz gráfica en las coordenadas locales especificadas.
+     *
+     * @param localCoords Las coordenadas locales donde se debe posicionar el nodo.
+     */
     public void renderNode(Point2D localCoords) {
         this.nodeCtx.getValue().setPos(localCoords);
 
@@ -146,6 +203,9 @@ public class Node extends VBox {
         );
     }
 
+    /**
+     * Carga y renderiza la información visual del nodo, incluyendo su imagen y nombre.
+     */
     public void loadNodeInfo() {
         String imageLoad = getClass().getResource("image-edit.png").toExternalForm();
         Image img = UI.loadImageOrDefault(imageLoad, nodeCtx.getValue().getImgURL());
