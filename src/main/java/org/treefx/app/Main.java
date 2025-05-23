@@ -186,7 +186,7 @@ public class Main extends Application {
 
         BorderPane root = new BorderPane();
         try {
-            Scene scene = new Scene(root,640,480);
+            Scene scene = new Scene(root,1280,720);
             primaryStage.setScene(scene);
             primaryStage.setTitle("TreeFX");
             primaryStage.show();

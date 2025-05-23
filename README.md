@@ -8,38 +8,30 @@
 </h1>
 
 <h4 align="center"></h4>
-![screenshot]()
+![treefx-tutorial](https://github.com/tuesta/treefx/blob/main/assets/videos/treefx-tutorial.gif)
 
-## Cualidades Claves
+## Como Usar
 
-
-* Full screen mode
-  - Write distraction free.
-* Cross platform
-  - Windows, macOS and Linux ready.
-
-## How To Use
-
-To clone and run this application, you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
+Para clonar y ejecutar esta aplicación, necesitas instalar [Git](https://git-scm.com) y [Maven](https://maven.apache.org/) (que incluye el comando mvn). Desde la línea de comandos, sigue estos pasos:
 
 ```bash
-# Clone this repository
-$ git clone https://github.com/amitmerchant1990/electron-markdownify
+$ git clone https://github.com/tuesta/treefx
 
-# Go into the repository
-$ cd electron-markdownify
+$ cd treefx
 
-# Install dependencies
-$ npm install
+# Ejecuta treefx
+$ mvn clean compile exec:java -Dexec.mainClass="org.treefx.app.Main"
 
-# Run the app
-$ npm start
+# Ejecuta los tests
+$ mvn clean test
 ```
 ## Programas
 
 Hemos creado esta alplicación mediante:
 
+- [Java fx](https://openjfx.io/)
+- [MySQL](https://www.mysql.com/)
+- [Maven](https://maven.apache.org/)
 - [Intellj](https://www.jetbrains.com/idea/)
+- [DataGrip](https://www.jetbrains.com/datagrip/)
 - [Scene Builder](https://gluonhq.com/products/scene-builder/)
-- [Java fx]()
-- [Java fx]()
