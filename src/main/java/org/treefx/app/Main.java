@@ -3,6 +3,7 @@ package org.treefx.app;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -17,7 +18,11 @@ import org.treefx.model.NodeInfo;
 import org.treefx.model.ziptree.ZipTreeStrict;
 import org.treefx.utils.adt.T;
 
+import java.io.BufferedReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -173,27 +178,74 @@ public class Main extends Application {
         root.setCenter(new TreeEditor(toHomeOrNav, connection, zipTree));
     }
 
+
     /**
-     * Punto principal de entrada para aplicaciones JavaFX.
-     * Configura y muestra la ventana principal de la aplicación,
-     * además de construir un árbol jerárquico de nodos de ejemplo al iniciar.
+     * Maneja las credenciales necesarias para conectarse a la base de datos.
+     * Lee un archivo llamado "DATABASE_CREDENTIALS" que debe contener las credenciales
+     * en el siguiente formato:
      *
-     * @param primaryStage El escenario principal proporcionado por el sistema JavaFX.
+     * <pre>
+     * USER=tu_nombre_de_usuario
+     * PASSWORD=tu_contraseña
+     * </pre>
+     * <p>
+     * Si el archivo tiene un formato válido, extrae el usuario y la contraseña, y pasa
+     * estas credenciales al consumidor proporcionado. Si ocurre algún error, como una excepción
+     * o un formato incorrecto del archivo, se muestra un cuadro de diálogo de error con un mensaje descriptivo.
+     *
+     * @param startWithCredentials El consumidor que será llamado si las credenciales son válidas,
+     *                             recibiendo el usuario y la contraseña como parámetros.
+     */
+    public void handleCredentials(BiConsumer<String, String> startWithCredentials) {
+        try (BufferedReader br = Files.newBufferedReader(Path.of("DATABASE_CREDENTIALS"))) {
+            String usuarioLn = br.readLine();
+            String passwordLn = br.readLine();
+            if (usuarioLn.startsWith("USER=") && passwordLn.startsWith("PASSWORD=")) {
+                String user = usuarioLn.replace("USER=", "");
+                String password = passwordLn.replace("PASSWORD=", "");
+                startWithCredentials.accept(user, password);
+            } else throw new Exception();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error en el archivo DATABASE_CREDENTIALS, debe tener el siguiente formato");
+            alert.setContentText("USER=tu_nombre_de_usuario\nPASSWORD=tu_contraseña\n");
+            alert.showAndWait();
+        }
+    }
+
+    /**
+     * Punto principal de entrada para la aplicación JavaFX.
+     * Este método se encarga de inicializar la ventana principal y configurar la interfaz gráfica de usuario.
+     * Se conecta a la base de datos utilizando las credenciales proporcionadas, muestra un árbol jerárquico
+     * almacenado en la base de datos, y gestiona posibles errores de conexión con un mensaje de advertencia.
+     *
+     * @param primaryStage El escenario principal que se utiliza para mostrar la ventana principal de la aplicación.
      */
     @Override
     public void start(Stage primaryStage) {
-        this.connection = new ConnectionDB("localhost", "3306", "root", "", "treefx");
+        handleCredentials((user, password) -> {
+            this.connection = new ConnectionDB("localhost", "3306", user, password, "treefx");
+            BorderPane root = new BorderPane();
+            try {
+                Scene scene = new Scene(root,1280,720);
+                primaryStage.setScene(scene);
+                primaryStage.setTitle("TreeFX");
+                primaryStage.show();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
 
-        BorderPane root = new BorderPane();
-        try {
-            Scene scene = new Scene(root,1280,720);
-            primaryStage.setScene(scene);
-            primaryStage.setTitle("TreeFX");
-            primaryStage.show();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        home(root);
+            if (!this.connection.success()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error de Conexión");
+                alert.setHeaderText("⚠️ No se pudo establecer conexión con la base de datos");
+                alert.setContentText("Posibles causas:\n• Servidor no disponible\n• Credenciales incorrectas");
+                alert.showAndWait();
+            }
+
+            home(root);
+        });
     }
 
     /**
@@ -203,5 +255,7 @@ public class Main extends Application {
     @Override
     public void stop() { if (this.connection != null) this.connection.close(); }
 
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) {
+        launch(args);
+    }
 }

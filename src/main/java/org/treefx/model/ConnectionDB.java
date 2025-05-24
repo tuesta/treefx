@@ -17,6 +17,10 @@ import java.util.LinkedList;
 public class ConnectionDB {
     private Maybe<Connection> mconnection;
 
+    public boolean success() {
+        return mconnection.isJust();
+    }
+
     /**
      * Convierte una cadena en formato SQL POINT a un objeto Point2D.
      *
