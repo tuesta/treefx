@@ -16,6 +16,7 @@ import org.treefx.component.TreeNavigation;
 import org.treefx.model.ConnectionDB;
 import org.treefx.model.NodeInfo;
 import org.treefx.model.ziptree.ZipTreeStrict;
+import org.treefx.utils.ReadCredentials;
 import org.treefx.utils.adt.T;
 
 import java.io.BufferedReader;
@@ -180,31 +181,27 @@ public class Main extends Application {
 
 
     /**
-     * Maneja las credenciales necesarias para conectarse a la base de datos.
-     * Lee un archivo llamado "DATABASE_CREDENTIALS" que debe contener las credenciales
-     * en el siguiente formato:
+     * Handles the credentials required to connect to the database.
+     * Reads a file named "DATABASE_CREDENTIALS" which must contain the credentials
+     * in the following format:
      *
      * <pre>
-     * USER=tu_nombre_de_usuario
-     * PASSWORD=tu_contraseña
+     * USER=your_username
+     * PASSWORD=your_password
      * </pre>
      * <p>
-     * Si el archivo tiene un formato válido, extrae el usuario y la contraseña, y pasa
-     * estas credenciales al consumidor proporcionado. Si ocurre algún error, como una excepción
-     * o un formato incorrecto del archivo, se muestra un cuadro de diálogo de error con un mensaje descriptivo.
+     * If the file has a valid format, the username and password are extracted
+     * and passed to the provided consumer. In case of an error, such as an invalid
+     * file format or an exception during reading, an error dialog is displayed
+     * to inform the user about the issue.
      *
-     * @param startWithCredentials El consumidor que será llamado si las credenciales son válidas,
-     *                             recibiendo el usuario y la contraseña como parámetros.
+     * @param startWithCredentials A consumer that will be invoked if the credentials
+     *                             are valid, receiving the username and password as parameters.
      */
     public void handleCredentials(BiConsumer<String, String> startWithCredentials) {
-        try (BufferedReader br = Files.newBufferedReader(Path.of("DATABASE_CREDENTIALS"))) {
-            String usuarioLn = br.readLine();
-            String passwordLn = br.readLine();
-            if (usuarioLn.startsWith("USER=") && passwordLn.startsWith("PASSWORD=")) {
-                String user = usuarioLn.replace("USER=", "");
-                String password = passwordLn.replace("PASSWORD=", "");
-                startWithCredentials.accept(user, password);
-            } else throw new Exception();
+        try {
+            var userPass = ReadCredentials.read();
+            startWithCredentials.accept(userPass.fst(), userPass.snd());
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
