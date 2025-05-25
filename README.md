@@ -8,7 +8,7 @@
 
 # Características principales ✨
 
-<a href="https://github.com/tuesta/treefx"><img src="assets/images/Logo.png" alt="Treefx" height="200" align="right"></a>
+<a href="https://github.com/tuesta/treefx"><img src="assets/images/Mk2Logo.png" alt="Treefx" height="200" align="right"></a>
 
 - **Estructura en forma de arbol**  
   Organiza tu contenido en nodos conectados jerárquicamente
