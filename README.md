@@ -90,9 +90,14 @@ Este proyecto utiliza una base de datos relacional para gestionar una estructura
 
 ## Diagrama de Casos de Uso
 
-
 <p align="center">
   <img src="assets/images/caso-uso.png" alt="treefx-tutorial" />
+</p>
+
+## Presentación
+
+<p align="center">
+  <img src="assets/images/presentacion/presentacion.png" alt="treefx-tutorial" />
 </p>
 
 ## 🤝 Colaboración
