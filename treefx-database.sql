@@ -32,7 +32,7 @@ CREATE TABLE `node` (
   `imgURL` varchar(200) NOT NULL,
   `position` point DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=153 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,11 +42,19 @@ CREATE TABLE `node` (
 LOCK TABLES `node` WRITE;
 /*!40000 ALTER TABLE `node` DISABLE KEYS */;
 INSERT INTO `node` VALUES
-(112,'Nodo Padre','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%201.jpg','\0\0\0\0\0\0\0\0\0\0@ï¿½ï¿½a@\0\0\0ï¿½ï¿½ï¿½Y@'),
-(113,'1','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%202.jpg','\0\0\0\0\0\0\0\0\0\0@ï¿½mK@\0\0\0ï¿½ï¿½ï¿½v@'),
-(114,'2','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%203.jpg','\0\0\0\0\0\0\0\0\0\0\0~ï¿½l@\0\0\0ï¿½v@'),
-(115,'3','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%205.jpg','\0\0\0\0\0\0\0\0\0\0\0ï¿½T`@\0\0\0ï¿½ï¿½cï¿½@'),
-(116,'4','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%204.jpg','\0\0\0\0\0\0\0\0\0\0@ï¿½au@\0\0\0 ï¿½3ï¿½@');
+(112,'Nodo Padre','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%201.jpg','\0\0\0\0\0\0\0\0\0\0@äóa@\0\0\0€‚îY@'),
+(113,'1','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%202.jpg','\0\0\0\0\0\0\0\0\0\0@€mK@\0\0\0 œĞv@'),
+(114,'2','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%203.jpg','\0\0\0\0\0\0\0\0\0\0\0~ìl@\0\0\0àv@'),
+(115,'3','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%205.jpg','\0\0\0\0\0\0\0\0\0\0\0üT`@\0\0\0à˜c‚@'),
+(116,'4','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/Documentacion/assets/images/New%204.jpg','\0\0\0\0\0\0\0\0\0\0@”au@\0\0\0 ¹3‚@'),
+(153,'Grafo conexo con basedpoint','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d1.png','\0\0\0\0\0\0\0\0\0\0Àc©…@\0\0\0 äóa@'),
+(154,'Naive implementation, con 4 punteros','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d2.png','\0\0\0\0\0\0\0\0\0\0à¥Ô`@\0\0\0€9ßx@'),
+(155,'Refactorizado: List-based tree','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d3.png','\0\0\0\0\0\0\0\0\0\0`±~@\0\0\0@DÏx@'),
+(156,'Diagrama entidad-relaciÃ³n','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d4.png','\0\0\0\0\0\0\0\0\0\0\0\'vŠ@\0\0\0 zx@'),
+(157,'InstalaciÃ³n y ConfiguraciÃ³n','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d5.png','\0\0\0\0\0\0\0\0\0\0àJ×’@\0\0\0à„ox@'),
+(158,'Referencia a un Ãºnico hijo','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d2-1.png','\0\0\0\0\0\0\0\0\0\0@KRd@\0\0\0 âh†@'),
+(159,'Referencia a sus hijos','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d3-1.png','\0\0\0\0\0\0\0\0\0\0€P«~@\0\0\0 øH†@'),
+(162,'Test Run','https://raw.githubusercontent.com/tuesta/treefx/refs/heads/master/assets/images/presentacion/d5-1.png','\0\0\0\0\0\0\0\0\0\0à\'“@\0\0\0 Íˆ†@');
 /*!40000 ALTER TABLE `node` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -78,7 +86,14 @@ INSERT INTO `node_hierarchy` VALUES
 (112,113),
 (112,114),
 (114,115),
-(114,116);
+(114,116),
+(153,154),
+(153,155),
+(153,156),
+(153,157),
+(154,158),
+(155,159),
+(157,162);
 /*!40000 ALTER TABLE `node_hierarchy` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -106,26 +121,32 @@ CREATE TABLE `node_positions` (
 LOCK TABLES `node_positions` WRITE;
 /*!40000 ALTER TABLE `node_positions` DISABLE KEYS */;
 INSERT INTO `node_positions` VALUES
-('\0\0\0\0\0\0\0ï¿½9ï¿½ï¿½ï¿½ï¿½?ï¿½Hï¿½zï¿½ï¿½ï¿½?',114,'Up Down(1) '),
-('\0\0\0\0\0\0\0ï¿½9ï¿½ï¿½ï¿½ï¿½?kï¿½u8\0ï¿½?',114,'Up '),
-('\0\0\0\0\0\0\0ï¿½Yï¿½`ï¿½ï¿½?Qï¿½ï¿½\"ï¿½Eï¿½?',112,'Down(2) '),
-('\0\0\0\0\0\0\0ï¿½ï¿½ï¿½&ï¿½ï¿½?ï¿½_ï¿½)ï¿½ï¿½?',113,'Up Down(2) Down(2) '),
-('\0\0\0\0\0\0\0##ï¿½ï¿½ï¿½ï¿½ï¿½?ï¿½LJï¿½ï¿½8ï¿½?',112,'Down(2) Down(1) '),
-('\0\0\0\0\0\0\09$.ï¿½gï¿½?PgOï¿½)ï¿½?',113,'Up '),
-('\0\0\0\0\0\0\09$.ï¿½gï¿½?ï¿½ï¿½5ï¿½Pwï¿½?',114,'Down(2) '),
-('\0\0\0\0\0\0\09$.ï¿½gï¿½?ï¿½_ï¿½)ï¿½ï¿½?',113,'Up Down(2) Down(1) '),
-('\0\0\0\0\0\0\0=Bï¿½tTï¿½ï¿½?ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½?',113,'Up Down(2) '),
-('\0\0\0\0\0\0\0^ï¿½ï¿½ï¿½rï¿½?Qï¿½ï¿½\"ï¿½Eï¿½?',112,'Down(1) '),
-('\0\0\0\0\0\0\0sï¿½ï¿½ï¿½a&ï¿½?ï¿½[ï¿½ï¿½dï¿½?',114,'Down(1) '),
-('\0\0\0\0\0\0\0ï¿½*Hï¿½+ï¿½?ï¿½Q@ï¿½ï¿½?',116,'Up Up Down(1) '),
-('\0\0\0\0\0\0\0ï¿½*Hï¿½+ï¿½?ï¿½ï¿½ï¿½ï¿½w*ï¿½?',115,'Up Up Down(1) '),
-('\0\0\0\0\0\0\0ï¿½\nQï¿½?Qï¿½ï¿½\"ï¿½Eï¿½?',116,'Up Up '),
-('\0\0\0\0\0\0\0ï¿½\nQï¿½?ï¿½nï¿½ï¿½ï¿½?',116,'Up Down(1) '),
-('\0\0\0\0\0\0\0ï¿½;ï¿½Dyï¿½ï¿½?ï¿½LJï¿½ï¿½8ï¿½?',112,'Down(2) Down(2) '),
-('\0\0\0\0\0\0\0ï¿½ï¿½d1Iï¿½ï¿½?ï¿½nï¿½ï¿½ï¿½?',115,'Up Down(2) '),
-('\0\0\0\0\0\0\0ï¿½ï¿½/ï¿½ï¿½ï¿½?Qï¿½ï¿½\"ï¿½Eï¿½?',115,'Up Up '),
-('\0\0\0\0\0\0\0ï¿½5Lwï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½w*ï¿½?',115,'Up '),
-('\0\0\0\0\0\0\0ï¿½5Lwï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½?',116,'Up ');
+('\0\0\0\0\0\0\0Ÿé=Äâ?¡ÜÖ`æ‘æ?',155,'Down(1) '),
+('\0\0\0\0\0\0\09§£¾?¯H×z…òà?',114,'Up Down(1) '),
+('\0\0\0\0\0\0\09§£Î?kœu8\0Û?',114,'Up '),
+('\0\0\0\0\0\0\0•Y•`¹Ö?Q‘ê\"¥Eè?',112,'Down(2) '),
+('\0\0\0\0\0\0\0şö‰&ç?¢_)Áæ?',113,'Up Down(2) Down(2) '),
+('\0\0\0\0\0\0\0##­“¾˜Ì?LJ¼½8ì?',112,'Down(2) Down(1) '),
+('\0\0\0\0\0\0\09$.¿gß?PgOğ)Ş?',113,'Up '),
+('\0\0\0\0\0\0\09$.¿gß?‰á5ìPwä?',114,'Down(2) '),
+('\0\0\0\0\0\0\09$.¿gß?¢_)Áæ?',113,'Up Down(2) Down(1) '),
+('\0\0\0\0\0\0\0=BŞtTˆã?ÈÆ0¸õ†â?',113,'Up Down(2) '),
+('\0\0\0\0\0\0\0^ÚÁîrµ?Q‘ê\"¥Eè?',112,'Down(1) '),
+('\0\0\0\0\0\0\0s˜Üàa&Ï?Í[àºîdä?',114,'Down(1) '),
+('\0\0\0\0\0\0\0{¬ü×\Z<×?\0ˆ¥Ë>Ó?',112,'Down(2) Down(2) '),
+('\0\0\0\0\0\0\0*H½+Ô?¬Q@³ß?',116,'Up Up Down(1) '),
+('\0\0\0\0\0\0\0*H½+Ô?OÁåûíÒ?',153,'Down(1) '),
+('\0\0\0\0\0\0\0*H½+Ô?·ü¢w*ß?',115,'Up Up Down(1) '),
+('\0\0\0\0\0\0\0–\nQÜ?Q‘ê\"¥EØ?',116,'Up Up '),
+('\0\0\0\0\0\0\0–\nQÜ?çn‡¥ã?',116,'Up Down(1) '),
+('\0\0\0\0\0\0\0¶;ÑDyêß?Ç^İ`ß?',158,'Up '),
+('\0\0\0\0\0\0\0¾;ÑDyêß?LJ¼½8ì?',112,'Down(2) Down(2) '),
+('\0\0\0\0\0\0\0Ëñd1Iõå?çn‡¥ã?',115,'Up Down(2) '),
+('\0\0\0\0\0\0\0Ï¸/§ÔÛ?Q‘ê\"¥EØ?',115,'Up Up '),
+('\0\0\0\0\0\0\0ì!,%¾ÉÙ?0š‘\"Ğæ?',154,'Down(1) '),
+('\0\0\0\0\0\0\0ì5Lwßá?·ü¢w*ß?',115,'Up '),
+('\0\0\0\0\0\0\0ì5Lwßá?¢ ¦İîàŞ?',116,'Up '),
+('\0\0\0\0\0\0\0ğ¯#©ß?óKéY”Ş?',159,'Up ');
 /*!40000 ALTER TABLE `node_positions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -151,7 +172,8 @@ CREATE TABLE `roots` (
 LOCK TABLES `roots` WRITE;
 /*!40000 ALTER TABLE `roots` DISABLE KEYS */;
 INSERT INTO `roots` VALUES
-(112,'Tutorial TreeFX');
+(112,'Tutorial TreeFX'),
+(153,'Presentacion');
 /*!40000 ALTER TABLE `roots` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -190,14 +212,14 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteRootAndChildren`(IN root_id int)
 BEGIN
-    -- Crear tabla temporal para almacenar los node_id
+
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_nodes (node_id INT PRIMARY KEY);
     DELETE FROM temp_nodes;
 
-    -- CTE recursiva para obtener todos los nodos (raÃ­z + hijos)
+
     INSERT INTO temp_nodes
     WITH RECURSIVE AllNodes AS (
-        SELECT root_id AS node_id -- Incluye el nodo raÃ­z
+        SELECT root_id AS node_id
         UNION ALL
         SELECT nh.child_node_id
         FROM node_hierarchy nh
@@ -205,7 +227,7 @@ BEGIN
     )
     SELECT node_id FROM AllNodes;
 
-    -- Eliminar datos en orden seguro (primero tablas dependientes, luego la tabla principal)
+
     DELETE FROM node_positions WHERE node_id IN (SELECT node_id FROM temp_nodes);
     DELETE FROM node_hierarchy
     WHERE parent_node_id IN (SELECT node_id FROM temp_nodes)
@@ -241,7 +263,7 @@ BEGIN
 
     START TRANSACTION;
 
-    -- 1. Validaciones obligatorias
+
     IF parent_id IS NULL THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Se requiere un ID de padre vÃƒÂ¡lido';
@@ -252,14 +274,14 @@ BEGIN
         SET MESSAGE_TEXT = 'El nodo padre no existe';
     END IF;
 
-    -- 2. Insertar el nuevo nodo
+
     INSERT INTO node (`name`, `imgURL`, `position`)
     VALUES (node_name, node_imgURL, node_position);
 
-    -- 3. Obtener ID del nuevo nodo
+
     SET @new_node_id = LAST_INSERT_ID();
 
-    -- 4. Crear relaciÃƒÂ³n padre-hijo
+
     INSERT INTO node_hierarchy (`parent_node_id`, `child_node_id`)
     VALUES (parent_id, @new_node_id);
 
@@ -295,18 +317,18 @@ BEGIN
 
     START TRANSACTION;
 
-    -- 1. Insertar el nodo principal
+
     INSERT INTO `node` (`name`, `imgURL`, `position`)
     VALUES (node_name, node_imgURL, node_position);
 
-    -- 2. Obtener el ID del nuevo nodo
+
     SET @new_node_id = LAST_INSERT_ID();
 
-    -- 3. Insertar en la tabla roots (asume que existe)
+
     INSERT INTO `roots` (`node_id`, `name`)
     VALUES (@new_node_id, root_name);
 
-    -- 4. Retorna el ID generado
+
     SET new_root_id = @new_node_id;
 
     COMMIT;
@@ -326,4 +348,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-23 22:38:00
+-- Dump completed on 2025-05-27  8:57:19
